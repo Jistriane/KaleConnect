@@ -1,0 +1,40 @@
+{
+  "name": "kaleconnect",
+  "version": "0.1.0",
+  "description": "KaleConnect - Remessas Inteligentes Multichain",
+  "main": "index.js",
+  "scripts": {
+    "init": "./init.sh",
+    "dev": "./dev.sh start",
+    "build": "./dev.sh build",
+    "test": "./dev.sh test",
+    "lint": "./dev.sh lint",
+    "clean": "./dev.sh clean",
+    "contracts": "./dev.sh contracts",
+    "status": "./dev.sh status"
+  },
+  "keywords": [
+    "blockchain",
+    "stellar",
+    "remittances",
+    "web3",
+    "soroban",
+    "nextjs",
+    "react",
+    "typescript"
+  ],
+  "author": "KaleConnect Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/kaleconnect.git"
+  },
+  "devDependencies": {
+    "@stellar/stellar-base": "^14.0.0",
+    "stellar-hd-wallet": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  /* Paleta KaleConnect alinhada à imagem e brand Stellar */
+  --brand-teal: #06b6d4;      /* cyan/teal brush */
+  --brand-sky: #60a5fa;       /* sky blue brush */
+  --brand-yellow: #facc15;    /* yellow stroke */
+  --brand-lavender: #c4b5fd;  /* lavender brush */
+  --brand-slate: #94a3b8;     /* slate/gray brush */
+  --brand-black: #0b0b0b;     /* Stellar black */
+}
+
+/* stylelint-disable at-rule-no-unknown */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  /* Expor as brand colors como tokens utilitários */
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-sky: var(--brand-sky);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-lavender: var(--brand-lavender);
+  --color-brand-slate: var(--brand-slate);
+  --color-brand-black: var(--brand-black);
+}
+/* stylelint-enable at-rule-no-unknown */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  /* Textura de brand com overlay sutil para não atrapalhar legibilidade */
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.95)),
+    url('/brand-texture.png') center/cover no-repeat fixed;
+  color: #0f172a; /* slate-900 - texto mais escuro por padrão */
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dark mode body */
+@media (prefers-color-scheme: dark) {
+  body {
+    background:
+      linear-gradient(to bottom, rgba(10,10,10,0.95), rgba(10,10,10,0.95)),
+      url('/brand-texture.png') center/cover no-repeat fixed;
+    color: #f1f5f9; /* slate-100 - texto claro no modo escuro */
+  }
+}
+
+html {
+  /* Scroll suave entre âncoras da Navbar */
+  scroll-behavior: smooth;
+}
+
+/* ==== Utilitários de Brand / Navbar / Botões ==== */
+
+.brand-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand-teal) 12%, transparent),
+    color-mix(in srgb, var(--brand-sky) 12%, transparent)
+  );
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.nav-link {
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #1e293b; /* slate-800 - texto mais escuro */
+  transition: color 120ms ease, text-underline-offset 120ms ease;
+}
+.nav-link.active {
+  color: var(--brand-teal);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.nav-link:hover { 
+  color: var(--brand-sky); 
+}
+.nav-link:focus-visible {
+  outline: 2px solid var(--brand-teal);
+  outline-offset: 2px;
+}
+
+/* Dark mode navigation */
+@media (prefers-color-scheme: dark) {
+  .nav-link {
+    color: #f1f5f9; /* slate-100 - texto claro no modo escuro */
+  }
+}
+
+.btn-passkey {
+  background-color: var(--brand-black);
+  color: #fff;
+}
+.btn-passkey:hover { opacity: 0.95; }
+
+.btn-lang {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.2);
+  color: #0f172a; /* slate-900 - texto mais escuro */
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+.btn-lang.is-active { 
+  background-color: var(--brand-slate);
+  color: white;
+  font-weight: 700;
+}
+.btn-lang:not(.is-active) { 
+  background-color: white; 
+  color: #1e293b; /* slate-800 */
+}
+
+/* Dark mode language button */
+@media (prefers-color-scheme: dark) {
+  .btn-lang {
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #f1f5f9; /* slate-100 */
+  }
+  .btn-lang:not(.is-active) { 
+    background-color: #334155; /* slate-700 */
+    color: #f1f5f9; /* slate-100 */
+  }
+}
+
+.btn-outline-slate {
+  border: 1px solid var(--brand-slate);
+  background: linear-gradient(0deg, rgba(0,0,0,0.02), rgba(0,0,0,0.02));
+}
+
+.btn-outline-teal { border: 1px solid var(--brand-teal); }
+.btn-outline-teal:hover { background-color: rgba(6,182,212,0.08); }
+
+.btn-outline-sky { border: 1px solid var(--brand-sky); }
+.btn-outline-sky:hover { background-color: rgba(96,165,250,0.10); }
+
+.btn-outline-violet { border: 1px solid var(--brand-lavender); }
+.btn-outline-violet:hover { background-color: rgba(196,181,253,0.15); }
+
+/* ==== Badges (status) ==== */
+.badge {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.75rem; /* text-xs */
+  line-height: 1rem;
+  font-weight: 500;
+}
+.badge-yellow {
+  background-color: color-mix(in srgb, var(--brand-yellow) 20%, transparent);
+  color: #5b4b00;
+}
+.badge-lavender {
+  background-color: color-mix(in srgb, var(--brand-lavender) 25%, transparent);
+  color: #3b2f7d;
+}
+
+/* Melhorar contraste de textos gerais */
+.text-slate-600 {
+  color: #475569 !important; /* slate-600 mais escuro */
+}
+
+.text-slate-500 {
+  color: #64748b !important; /* slate-500 mais escuro */
+}
+
+.text-slate-700 {
+  color: #334155 !important; /* slate-700 mais escuro */
+}
+
+.text-slate-800 {
+  color: #1e293b !important; /* slate-800 mais escuro */
+}
+
+.text-slate-900 {
+  color: #0f172a !important; /* slate-900 mais escuro */
+}
+
+/* Dark mode text colors */
+@media (prefers-color-scheme: dark) {
+  .text-slate-600 {
+    color: #cbd5e1 !important; /* slate-300 */
+  }
+  
+  .text-slate-500 {
+    color: #e2e8f0 !important; /* slate-200 */
+  }
+  
+  .text-slate-700 {
+    color: #f1f5f9 !important; /* slate-100 */
+  }
+  
+  .text-slate-800 {
+    color: #f8fafc !important; /* slate-50 */
+  }
+  
+  .text-slate-900 {
+    color: #ffffff !important; /* white */
+  }
+}

@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "remittance",
+    "kyc_registry",
+    "rates_oracle",
+]
+resolver = "2"
