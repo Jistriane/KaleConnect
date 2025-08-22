@@ -64,7 +64,12 @@ export function getPhantomSolanaProvider(): PhantomSolanaProvider | undefined {
 export function isFreighterAvailable(): boolean {
   if (typeof window === "undefined") return false;
   
-  const anyWin = window as any;
+  // Evita uso de `any` usando um tipo seguro para as checagens
+  const anyWin = window as unknown as {
+    freighterApi?: unknown;
+    freighter?: unknown;
+    window?: { freighterApi?: unknown };
+  };
   
   // Verificar múltiplas formas de detecção da Freighter
   const hasFreighterApi = anyWin?.freighterApi;

@@ -1,9 +1,6 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",

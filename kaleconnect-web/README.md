@@ -208,6 +208,27 @@ curl -s 'http://localhost:3006/api/rates?from=XLM&to=BRL&amount=100'
 2. Configure as variáveis de ambiente necessárias
 3. Deploy automático a cada push
 
+#### Produção (Vercel) — Configuração atual
+- **Projeto Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **URL de Produção**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
+- **Rede**: Stellar Soroban Testnet
+- **Variáveis de ambiente (Production)**:
+  - `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
+  - `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
+  - `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CCVIO6YVRPWOGH5RVXTTCZQPPABUZCNUEAVB75SRZDS3ECFOTFSXZOQ4`
+  - `NEXT_PUBLIC_CONTRACT_ID_KYC = CDGUWD4KJHGLGNEFUS2E6N5MDL7Z34IACKEYD6ZC3DB7IS47MHLKKJG6`
+  - `NEXT_PUBLIC_CONTRACT_ID_RATES = CDAREYRUQPR6C5PRJIBEREP5IM2UJ2YOPCFDMYNMMORSTFSH2NIXK5G6`
+  - `APP_CRYPTO_SECRET` (gerado aleatoriamente)
+  - `AUDIT_LOG_SECRET` (gerado aleatoriamente)
+
+Notas:
+- O arquivo `vercel.json` foi ajustado para Next.js (sem `framework`, `buildCommand` e `outputDirectory`).
+- Correção de lint aplicada em `src/lib/wallets.ts` para permitir o build na Vercel.
+- Para habilitar a IA/Eliza, configure também `OPENAI_API_KEY` (server-side).
+
+Referências úteis:
+- Explorador Testnet: https://stellar.expert/explorer/testnet
+
 ### Docker
 ```bash
 # Build da imagem
