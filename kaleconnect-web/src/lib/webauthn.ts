@@ -17,12 +17,23 @@ export type UserRecord = {
 const db = new Map<string, UserRecord>();
 const challenges = new Map<string, string>(); // username -> challenge
 
-// Ajuste para desenvolvimento local
-// Observação: durante o desenvolvimento o Next pode mudar a porta (ex.: 3002 se 3000 estiver em uso).
-// Aqui fixamos para a porta em uso atual do dev server. Se alterar, ajuste esta constante.
-export const rpID = "localhost";
-export const origin = `http://${rpID}:3000`;
-export const rpName = "KaleConnect Dev";
+// Ajuste para desenvolvimento/produção via variáveis de ambiente
+// Prioridade:
+// - WEBAUTHN_RP_ORIGIN: origem completa (ex.: http://localhost:3000)
+// - NEXT_PUBLIC_APP_ORIGIN: origem pública do app
+// - PORT: porta do dev server (fallback 3000)
+// RP ID pode ser sobrescrito via WEBAUTHN_RP_ID; por padrão usamos o hostname da origem.
+const resolvedOrigin = (() => {
+  const fromEnv = process.env.WEBAUTHN_RP_ORIGIN || process.env.NEXT_PUBLIC_APP_ORIGIN;
+  if (fromEnv) return fromEnv;
+  const port = process.env.PORT || "3000";
+  return `http://localhost:${port}`;
+})();
+
+const parsed = new URL(resolvedOrigin);
+export const rpID = process.env.WEBAUTHN_RP_ID || parsed.hostname;
+export const origin = `${parsed.protocol}//${parsed.host}`;
+export const rpName = process.env.WEBAUTHN_RP_NAME || "KaleConnect Dev";
 
 function toBase64Url(input: string | Buffer | Uint8Array | ArrayBuffer): string {
   if (typeof input === 'string') return input;

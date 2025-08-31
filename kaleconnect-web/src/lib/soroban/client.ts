@@ -75,8 +75,11 @@ export async function callContract<T = unknown>(
   // Mapeia argumentos JS -> SCVal heurístico simples
   const mapArg = (a: unknown) => {
     if (typeof a === 'string') {
-      // Heurística: se parecer Symbol "XLM:BRL" use symbol, se parecer G... use Address, senão string
-      if (a.includes(':')) return toSymbol(a)
+      // Heurística: normaliza pares como "XLM:BRL" -> "xlm_brl" para Symbol válido no Soroban
+      if (a.includes(':')) {
+        const normalized = a.toLowerCase().replace(/[^a-z0-9:]/g, '').replace(':', '_')
+        return toSymbol(normalized)
+      }
       if (/^[A-Z0-9]{56}$/.test(a)) return toAddress(a)
       return scv.forString(a)
     }

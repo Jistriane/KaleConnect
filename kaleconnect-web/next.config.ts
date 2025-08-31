@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    root: "/home/jistriane/Documentos/KaleConnect/kaleconnect-web"
+  }
 };
 
 export default nextConfig;

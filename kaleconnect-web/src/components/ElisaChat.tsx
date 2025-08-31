@@ -2,6 +2,23 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { detectLang, type ElisaMessage } from "@/lib/elisa";
+import { createWithFreighter } from "@/lib/soroban/remittance";
+
+function isSuggested(x: unknown): x is { from: string; to: string; amount: number } {
+  return !!x && typeof x === "object" && typeof (x as { from?: unknown }).from === "string" && typeof (x as { to?: unknown }).to === "string" && Number.isFinite(Number((x as { amount?: unknown }).amount));
+}
+
+async function postAudit(body: { from: string; to: string; amount: number; userId?: string; txId?: string }) {
+  try {
+    await fetch("/api/remit/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // noop
+  }
+}
 
 export default function ElisaChat() {
   const [messages, setMessages] = useState<ElisaMessage[]>([
@@ -11,6 +28,8 @@ export default function ElisaChat() {
   const [loading, setLoading] = useState(false);
   const sessionIdRef = useRef<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [suggested, setSuggested] = useState<{ from: string; to: string; amount: number } | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   const uiLang = useMemo(() => detectLang(input), [input]);
 
@@ -41,6 +60,9 @@ export default function ElisaChat() {
       if (data?.sessionId && !sessionIdRef.current) sessionIdRef.current = data.sessionId;
       const reply = String(data?.reply ?? (uiLang === "pt" ? "Desculpe, não entendi." : "Sorry, I didn't understand."));
       setMessages(m => [...m, { role: "assistant", content: reply, lang: data?.lang ?? uiLang }]);
+      // Detectar proposta de remessa vinda do backend
+      const sr = data?.meta?.suggestedRemit as unknown;
+      if (isSuggested(sr)) setSuggested(sr);
     } catch {
       setMessages(m => [...m, { role: "assistant", content: uiLang === "pt" ? "Ocorreu um erro ao falar com a Elisa." : "An error occurred talking to Elisa.", lang: uiLang }]);
     } finally {
@@ -56,6 +78,32 @@ export default function ElisaChat() {
   }
 
   if (!mounted) return null;
+
+  async function onConfirm() {
+    if (!suggested) return;
+    setConfirming(true);
+    try {
+      const res = await createWithFreighter(suggested.from, suggested.to, suggested.amount);
+      const txHash = res?.txHash;
+      await postAudit({ from: suggested.from, to: suggested.to, amount: suggested.amount, txId: txHash });
+      const base = process.env.NEXT_PUBLIC_EXPLORER_TX_URL;
+      const link = txHash && base ? `${base.replace(/\/$/, "")}/${txHash}` : undefined;
+      const okMsg = uiLang === "pt"
+        ? `✅ Remessa criada e assinada com a carteira.${txHash ? `\nTx: ${txHash}${link ? `\nExplorer: ${link}` : ""}` : ""}`
+        : `✅ Remittance created and signed with wallet.${txHash ? `\nTx: ${txHash}${link ? `\nExplorer: ${link}` : ""}` : ""}`;
+      setMessages(m => [...m, { role: "assistant", content: okMsg, lang: uiLang }]);
+      setSuggested(null);
+    } catch {
+      setMessages(m => [...m, { role: "assistant", content: uiLang === "pt" ? "❌ Falha ao criar a remessa. Verifique a carteira Freighter e as variáveis da rede." : "❌ Failed to create remittance. Check Freighter wallet and network variables.", lang: uiLang }]);
+    } finally {
+      setConfirming(false);
+    }
+  }
+
+  function onCancel() {
+    setSuggested(null);
+    setMessages(m => [...m, { role: "assistant", content: uiLang === "pt" ? "Operação cancelada." : "Operation canceled.", lang: uiLang }]);
+  }
 
   return (
     <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 shadow-sm">
@@ -109,6 +157,38 @@ export default function ElisaChat() {
             </div>
           </div>
         ))}
+        {suggested && (
+          <div className="flex gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">🤖</span>
+            </div>
+            <div className="flex-1">
+              <div className="inline-block max-w-[85%] px-4 py-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-slate-800 dark:text-slate-200 rounded-tl-sm">
+                <div className="text-sm">
+                  {uiLang === "pt"
+                    ? `Confirmar envio de ${suggested.amount} ${suggested.from} para ${suggested.to}?`
+                    : `Confirm sending ${suggested.amount} ${suggested.from} to ${suggested.to}?`}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    disabled={confirming}
+                    onClick={() => void onConfirm()}
+                    className={`px-3 py-1.5 rounded-md text-white text-sm ${confirming ? "bg-slate-400" : "bg-green-600 hover:bg-green-700"}`}
+                  >
+                    {confirming ? (uiLang === "pt" ? "Processando..." : "Processing...") : (uiLang === "pt" ? "Confirmar" : "Confirm")}
+                  </button>
+                  <button
+                    disabled={confirming}
+                    onClick={() => onCancel()}
+                    className="px-3 py-1.5 rounded-md text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300"
+                  >
+                    {uiLang === "pt" ? "Cancelar" : "Cancel"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {loading && (
           <div className="flex gap-3">
             <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">

@@ -39,7 +39,7 @@ Use gerenciadores de segredos (Vercel, GitHub, 1Password, etc.).
 ## 5) Deploy (exemplos)
 ```bash
 # Remittance
-goroutine=false soroban contract deploy \
+soroban contract deploy \
   --wasm contracts/target/wasm32-unknown-unknown/release/remittance.wasm \
   --network $SOROBAN_NETWORK \
   --source $ADMIN_SECRET

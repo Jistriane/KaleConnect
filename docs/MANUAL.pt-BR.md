@@ -54,11 +54,12 @@ NEXT_PUBLIC_STELLAR_NETWORK=testnet
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 ELIZA_API_URL=http://localhost:3001
 ELIZA_API_KEY=your-eliza-api-key-here
 LOG_LEVEL=info
 NODE_ENV=development
+PORT=3000
 ```
 Produção: ajuste domínios/origens (RP), chaves e URLs (ex.: Horizon ou proxies), desative logs verbosos.
 
@@ -72,13 +73,13 @@ Opções de execução:
 make dev
 
 # usando script utilitário
-a./dev.sh start
+./dev.sh start
 
 # manualmente
 cd kaleconnect-web
 npm run dev
 ```
-Acesse: http://localhost:3006
+Acesse: http://localhost:3000
 
 Scripts úteis (`./dev.sh`):
 - `build` — build de produção
@@ -114,7 +115,7 @@ Consulte também `kaleconnect-web/README.md` para detalhes de endpoints e arquit
 - Logs:
   - Dev: `./dev.sh logs` (pistas de processos e caminhos)
 - Saúde/Health:
-  - `GET /api/health` em `http://localhost:3006/api/health`
+  - `GET /api/health` em `http://localhost:3000/api/health`
 
 Rotas principais (mock/PoC):
 - WebAuthn: registro e login (`/api/auth/passkey/...`)
@@ -202,9 +203,9 @@ Endpoints principais (base nas URLs acima):
 Variáveis (Production):
 - `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
 - `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
-- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CCVIO6YVRPWOGH5RVXTTCZQPPABUZCNUEAVB75SRZDS3ECFOTFSXZOQ4`
-- `NEXT_PUBLIC_CONTRACT_ID_KYC = CDGUWD4KJHGLGNEFUS2E6N5MDL7Z34IACKEYD6ZC3DB7IS47MHLKKJG6`
-- `NEXT_PUBLIC_CONTRACT_ID_RATES = CDAREYRUQPR6C5PRJIBEREP5IM2UJ2YOPCFDMYNMMORSTFSH2NIXK5G6`
+- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`
+- `NEXT_PUBLIC_CONTRACT_ID_KYC = CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
+- `NEXT_PUBLIC_CONTRACT_ID_RATES = CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
 - `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (gerados)
 - (Opcional) `OPENAI_API_KEY`
 
@@ -220,7 +221,7 @@ Variáveis (Production):
 
 ## 10. Troubleshooting
 
-- Porta 3006 ocupada: `pkill -f 'next dev'` ou mude a porta.
+- Porta 3000 ocupada: `pkill -f 'next dev'` ou mude a porta.
 - Falha de build web: limpe `.next/`, `node_modules/` e reinstale (`./dev.sh reset`).
 - Rust/Soroban indisponível: confirme `rustup`, target WASM e `soroban`.
 - WebAuthn no local: `WEBAUTHN_RP_ORIGIN` deve bater com a origem acessada.

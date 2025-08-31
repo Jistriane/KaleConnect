@@ -7,22 +7,66 @@ async function wait(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
 }
 
-async function getInjectedFreighter(retries = 20, intervalMs = 500): Promise<any | undefined> {
+// Função específica para aguardar que a API do Freighter fique totalmente disponível
+export async function waitForFreighterAPI(maxWaitMs = 8000): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  
+  console.log('🔍 Iniciando detecção do Freighter...');
+  
+  // Estratégia 1: Verificar se já está disponível imediatamente
+  const anyWin: any = window as any;
+  const immediateApi = anyWin?.freighterApi || anyWin?.freighter;
+  if (immediateApi && typeof immediateApi === 'object') {
+    console.log('✅ Freighter API encontrada imediatamente');
+    return true;
+  }
+  
+  // Estratégia 2: Tentar via módulo NPM
+  try {
+    const mod: any = await import("@stellar/freighter-api");
+    if (mod?.isInstalled && typeof mod.isInstalled === 'function') {
+      const installed = await mod.isInstalled();
+      if (installed) {
+        console.log('✅ Freighter disponível via módulo NPM');
+        return true;
+      }
+    }
+  } catch (error) {
+    console.log('⚠️ Módulo NPM não funcionou:', error);
+  }
+  
+  // Estratégia 3: Aguardar a API se injetar (com menos tentativas)
+  const api = await getInjectedFreighter(10, 500); // 10 tentativas x 500ms = 5s max
+  if (api) {
+    console.log('✅ Freighter API disponível via injeção');
+    return true;
+  }
+  
+  console.warn('⚠️ Freighter API não detectada');
+  return false;
+}
+
+async function getInjectedFreighter(): Promise<any | undefined> {
   if (typeof window === "undefined") return undefined;
   
-  // Primeira tentativa: verificar se já está disponível
   const anyWin: any = window as any;
-  let g = anyWin?.freighterApi ?? anyWin?.freighter ?? anyWin?.window?.freighterApi;
-  if (g) return g;
-
-  // Aguardar a extensão se injetar (pode demorar após o carregamento da página)
-  for (let i = 0; i < retries; i++) {
-    g = anyWin?.freighterApi ?? anyWin?.freighter ?? anyWin?.window?.freighterApi;
-    if (g && typeof g === 'object') {
-      return g;
-    }
-    await wait(intervalMs);
+  
+  // Verificação simples e direta
+  const api = anyWin?.freighterApi ?? anyWin?.freighter ?? anyWin?.window?.freighterApi;
+  
+  if (api && typeof api === 'object') {
+    return api;
   }
+  
+  // Se não encontrou, aguardar um pouco (máximo 2 segundos)
+  for (let i = 0; i < 4; i++) {
+    await wait(500);
+    const retryApi = anyWin?.freighterApi ?? anyWin?.freighter ?? anyWin?.window?.freighterApi;
+    if (retryApi && typeof retryApi === 'object') {
+      return retryApi;
+    }
+  }
+  
   return undefined;
 }
 
@@ -30,13 +74,15 @@ export function isFreighterInstalled(): boolean {
   if (typeof window === "undefined") return false;
   const anyWin: any = window as any;
   
-  // Verificar se a API está injetada
-  const hasApi = !!(anyWin?.freighterApi || anyWin?.freighter);
+  // Verificar se a API está injetada (mais simples)
+  const api = anyWin?.freighterApi || anyWin?.freighter;
+  const hasApi = !!(api && typeof api === 'object');
   
   // Verificar se há indicações DOM da extensão
   const hasScript = document.querySelector('script[src*="freighter"]') !== null;
   const hasMeta = document.querySelector('meta[name*="freighter"]') !== null;
   
+  // Retornar true se há qualquer indicação da extensão
   return hasApi || hasScript || hasMeta;
 }
 
@@ -65,66 +111,42 @@ export async function checkFreighterConnected(): Promise<boolean> {
 }
 
 export async function getFreighterPublicKey(): Promise<string> {
-  // Primeiro verificar se a extensão está instalada
-  if (!isFreighterInstalled()) {
-    throw new Error("Freighter não instalada");
-  }
-
+  // Estratégia 1: Tentar via módulo NPM (mais confiável)
   try {
     const mod: any = await import("@stellar/freighter-api");
     
-    // Solicitar acesso explicitamente
-    const reqAccess = mod?.requestAccess ?? mod?.default?.requestAccess;
-    if (typeof reqAccess === "function") {
-      try { 
-        await reqAccess(); 
-      } catch (e) { 
-        console.warn("Usuário pode ter cancelado o acesso:", e);
+    if (mod?.getPublicKey && typeof mod.getPublicKey === "function") {
+      try {
+        // Tentar com rede testnet
+        const pk = await mod.getPublicKey({ network: "TESTNET" });
+        if (typeof pk === "string" && pk.length > 0) {
+          return pk;
+        }
+      } catch {
+        // Tentar sem parâmetros
+        const pk = await mod.getPublicKey();
+        if (typeof pk === "string" && pk.length > 0) {
+          return pk;
+        }
       }
     }
+  } catch {
+    // Continua para próxima estratégia
+  }
 
-    const fn = mod?.getPublicKey ?? mod?.default?.getPublicKey;
-    if (typeof fn === "function") {
-      let pk: any;
-      try {
-        // Tentar com rede testnet primeiro
-        pk = await fn({ network: "TESTNET" });
-      } catch (e) {
-        pk = await fn();
-      }
+  // Estratégia 2: API injetada
+  const api = await getInjectedFreighter();
+  if (api && typeof api.getPublicKey === "function") {
+    try {
+      const pk = await api.getPublicKey();
       if (typeof pk === "string" && pk.length > 0) {
         return pk;
       }
-    }
-  } catch (e) {
-    // Fallback para API injetada
-  }
-
-  // Fallback: tentar API injetada diretamente
-  const g = await getInjectedFreighter();
-  if (!g) {
-    throw new Error("Freighter API indisponível");
-  }
-
-  if (typeof g.requestAccess === "function") {
-    try { 
-      await g.requestAccess(); 
-    } catch (e) { 
-      console.warn("Acesso negado:", e);
+    } catch {
+      // Ignorar erro e continuar
     }
   }
 
-  if (typeof g.getPublicKey === "function") {
-    let pk: any;
-    try {
-      pk = await g.getPublicKey({ network: "TESTNET" });
-    } catch (e) {
-      pk = await g.getPublicKey();
-    }
-    if (typeof pk === "string" && pk.length > 0) {
-      return pk;
-    }
-  }
-
-  throw new Error("Freighter API indisponível");
+  // Se chegou aqui, não conseguiu conectar
+  throw new Error("Freighter não instalada ou inativa. Instale em https://freighter.app/ e desbloqueie a carteira.");
 }

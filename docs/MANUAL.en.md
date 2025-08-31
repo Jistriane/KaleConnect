@@ -54,11 +54,12 @@ NEXT_PUBLIC_STELLAR_NETWORK=testnet
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 ELIZA_API_URL=http://localhost:3001
 ELIZA_API_KEY=your-eliza-api-key-here
 LOG_LEVEL=info
 NODE_ENV=development
+PORT=3000
 ```
 Production: adjust domains/origins (RP), keys and URLs (e.g., Horizon), reduce verbosity.
 
@@ -78,7 +79,7 @@ make dev
 cd kaleconnect-web
 npm run dev
 ```
-Open: http://localhost:3006
+Open: http://localhost:3000
 
 Useful scripts (`./dev.sh`):
 - `build` — production build
@@ -114,7 +115,7 @@ Also see `kaleconnect-web/README.md` for front-end architecture and API endpoint
 - Logs:
   - Dev: `./dev.sh logs`
 - Health:
-  - `GET /api/health` at `http://localhost:3006/api/health`
+  - `GET /api/health` at `http://localhost:3000/api/health`
 
 Key routes (mock/PoC):
 - WebAuthn: register & login (`/api/auth/passkey/...`)
@@ -179,6 +180,33 @@ docker run -p 3000:3000 kaleconnect-web:latest
 ./deploy.sh docker     # local image
 ```
 
+### 8.1 Deployment (Frontend + Backend) — Vercel
+
+The frontend (Next.js) and backend (APIs under `kaleconnect-web/src/app/api/*`) are published automatically on Vercel on each push.
+
+- Project: https://vercel.com/jistrianes-projects/kaleconnect-web
+- Production (Protection enabled by default):
+  - App: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
+  - To make public: Project → Settings → Protection → disable on Production
+- Preview (public):
+  - App: https://kaleconnect-b7nr4d6il-jistrianes-projects.vercel.app
+
+Key endpoints (base on URLs above):
+- `GET /api/health`
+- `POST /api/kyc/start`, `GET /api/kyc/status?id=...`
+- `POST /api/remit`, `GET /api/remit/[id]`
+- `GET /api/rates?from=XLM&to=BRL&amount=100`
+- `POST /api/elisa/chat` (requires `OPENAI_API_KEY` if AI is enabled)
+
+Production variables:
+- `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
+- `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
+- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`
+- `NEXT_PUBLIC_CONTRACT_ID_KYC = CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
+- `NEXT_PUBLIC_CONTRACT_ID_RATES = CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
+- `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (generated)
+- (Optional) `OPENAI_API_KEY`
+
 ---
 
 ## 9. Security & Compliance
@@ -193,7 +221,7 @@ docker run -p 3000:3000 kaleconnect-web:latest
 
 ## 10. Troubleshooting
 
-- Port 3006 busy: `pkill -f 'next dev'` or change port.
+- Port 3000 busy: `pkill -f 'next dev'` or change port.
 - Web build failure: clean `.next/`, `node_modules/` and reinstall (`./dev.sh reset`).
 - Rust/Soroban missing: ensure `rustup`, WASM target and `soroban` are installed.
 - WebAuthn locally: `WEBAUTHN_RP_ORIGIN` must match the origin you use.

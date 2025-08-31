@@ -1,6 +1,7 @@
 "use client";
 
 // Detecção de carteiras disponíveis no navegador
+import { isFreighterInstalled } from "./freighter-final";
 
 // Utilitário de detecção de extensões de carteiras no navegador
 
@@ -64,12 +65,8 @@ export function getPhantomSolanaProvider(): PhantomSolanaProvider | undefined {
 export function isFreighterAvailable(): boolean {
   if (typeof window === "undefined") return false;
   
-  // Evita uso de `any` usando um tipo seguro para as checagens
-  const anyWin = window as unknown as {
-    freighterApi?: unknown;
-    freighter?: unknown;
-    window?: { freighterApi?: unknown };
-  };
+  // Verificação simples e direta
+  const anyWin = window as any;
   
   // Verificar múltiplas formas de detecção da Freighter
   const hasFreighterApi = anyWin?.freighterApi;
@@ -85,7 +82,7 @@ export function isFreighterAvailable(): boolean {
 
 export function detectAllWallets(): WalletDetections {
   return {
-    freighter: isFreighterAvailable(),
+    freighter: isFreighterInstalled(),
     metamask: !!getMetaMaskProvider(),
     coinbase: !!getCoinbaseProvider(),
     brave: !!getBraveProvider(),

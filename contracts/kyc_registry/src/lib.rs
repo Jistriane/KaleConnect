@@ -61,20 +61,32 @@ mod test {
         let admin = Address::generate(&env);
         let user = Address::generate(&env);
 
-        env.as_contract(&contract_id, || {
-            KycRegistry::init(env.clone(), admin.clone());
+        // Facilita require_auth() em ambiente de teste
+        env.mock_all_auths();
 
-            user.require_auth_for_args(soroban_sdk::vec![&env]);
+        // Use frames separados para evitar reautorização na mesma frame
+        env.clone().as_contract(&contract_id, || {
+            KycRegistry::init(env.clone(), admin.clone());
+        });
+
+        env.clone().as_contract(&contract_id, || {
             KycRegistry::start(env.clone(), user.clone());
+        });
+
+        env.clone().as_contract(&contract_id, || {
             assert_eq!(
                 KycRegistry::get_status(env.clone(), user.clone()).unwrap(),
                 Symbol::new(&env, "pending")
             );
+        });
 
-            admin.require_auth_for_args(soroban_sdk::vec![&env]);
+        env.clone().as_contract(&contract_id, || {
             KycRegistry::set_status(env.clone(), user.clone(), Symbol::new(&env, "approved"));
+        });
+
+        env.clone().as_contract(&contract_id, || {
             assert_eq!(
-                KycRegistry::get_status(env, user).unwrap(),
+                KycRegistry::get_status(env.clone(), user.clone()).unwrap(),
                 Symbol::new(&env, "approved")
             );
         });

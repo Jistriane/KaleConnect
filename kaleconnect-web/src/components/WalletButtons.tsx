@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getFreighterPublicKey, checkFreighterConnected } from "../lib/freighter";
+// import { addFreighterDebugToConsole } from "../lib/freighter-debug";
+import "../lib/freighter-instructions"; // Importar para adicionar funções de ajuda ao console
+import "../lib/freighter-test"; // Importar funções de teste
+import { isFreighterInstalled, connectFreighterFinal, checkFreighterConnected } from "../lib/freighter-final";
 import { detectAllWallets, getMetaMaskProvider } from "../lib/wallets";
 
 type Props = { label?: string };
@@ -32,23 +35,22 @@ export default function WalletButtons({ label = "Conectar carteiras" }: Props) {
         if (d.freighter) {
           setFreighterStatus('checking');
           try {
+            // Tentar verificar conexão diretamente
             const connected = await checkFreighterConnected();
             
             if (connected) {
               setFreighterStatus('connected');
               // Se já está conectada, obter a chave pública
-              try {
-                const publicKey = await getFreighterPublicKey();
+              const publicKey = await connectFreighterFinal();
+              if (publicKey) {
                 setFreighterAddr(publicKey);
-              } catch (error) {
-                console.warn('Erro ao obter chave pública da Freighter:', error);
+              } else {
                 setFreighterStatus('idle');
               }
             } else {
               setFreighterStatus('idle');
             }
-          } catch (error) {
-            console.warn('Erro ao verificar status da Freighter:', error);
+          } catch {
             setFreighterStatus('idle');
           }
         } else {
@@ -100,7 +102,7 @@ export default function WalletButtons({ label = "Conectar carteiras" }: Props) {
         if (connected) {
           setFreighterStatus('connected');
           try {
-            const publicKey = await getFreighterPublicKey();
+            const publicKey = await connectFreighterFinal();
             setFreighterAddr(publicKey);
           } catch (error) {
             console.warn('Erro ao obter chave pública da Freighter:', error);
@@ -120,15 +122,25 @@ export default function WalletButtons({ label = "Conectar carteiras" }: Props) {
     };
   }, []);
 
-  async function connectFreighter() {
+    async function connectFreighter() {
     try {
       setFreighterStatus('loading');
       setFreighterError(null);
       
-      const pk = await getFreighterPublicKey();
-      setFreighterAddr(pk);
-      setFreighterStatus('connected');
-      setFreighterRetryCount(0); // Reset retry count on success
+      // Verificar se está instalada
+      if (!isFreighterInstalled()) {
+        throw new Error("Freighter não encontrada. Verifique se a extensão está instalada e ativa no Chrome.");
+      }
+      
+      // Tentar conectar usando o método que funciona
+      const pk = await connectFreighterFinal();
+      if (pk) {
+        setFreighterAddr(pk);
+        setFreighterStatus('connected');
+        setFreighterRetryCount(0); // Reset retry count on success
+      } else {
+        throw new Error("Freighter encontrada mas falhou na conexão. Verifique se a extensão está desbloqueada.");
+      }
     } catch (e: unknown) {
       const errorMsg = e instanceof Error ? e.message : String(e);
       
@@ -136,11 +148,13 @@ export default function WalletButtons({ label = "Conectar carteiras" }: Props) {
       let userFriendlyMessage = "";
       
       if (errorMsg.includes("Freighter não instalada")) {
-        userFriendlyMessage = "Extensão Freighter não encontrada. Instale a extensão Freighter para Stellar.";
+        userFriendlyMessage = "Extensão Freighter não encontrada. Baixe em https://freighter.app/";
         setFreighterStatus('idle');
+        console.log('💡 Digite freighterHelp() no console para instruções completas');
       } else if (errorMsg.includes("Freighter API indisponível")) {
-        userFriendlyMessage = "Freighter detectada mas API indisponível. Verifique se a extensão está ativa.";
+        userFriendlyMessage = "Freighter detectada mas inativa. Abra a extensão e desbloqueie sua carteira.";
         setFreighterStatus('error');
+        console.log('🔍 Digite diagnoseFreighter() no console para diagnóstico');
       } else if (errorMsg.includes("User declined") || errorMsg.includes("denied")) {
         userFriendlyMessage = "Conexão cancelada pelo usuário.";
         setFreighterStatus('idle');
@@ -256,8 +270,10 @@ export default function WalletButtons({ label = "Conectar carteiras" }: Props) {
         const connected = await checkFreighterConnected();
         if (connected) {
           setFreighterStatus('connected');
-          const publicKey = await getFreighterPublicKey();
-          setFreighterAddr(publicKey);
+          const publicKey = await connectFreighterFinal();
+          if (publicKey) {
+            setFreighterAddr(publicKey);
+          }
         } else {
           setFreighterStatus('idle');
         }

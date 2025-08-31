@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "init": "./init.sh",
-    "dev": "./dev.sh start",
+    "dev": "cd kaleconnect-web && npm run dev",
     "build": "./dev.sh build",
     "test": "./dev.sh test",
     "lint": "./dev.sh lint",
     "clean": "./dev.sh clean",
     "contracts": "./dev.sh contracts",
-    "status": "./dev.sh status"
+    "status": "./dev.sh status",
+    "start": "./dev.sh start"
   },
   "keywords": [
     "blockchain",

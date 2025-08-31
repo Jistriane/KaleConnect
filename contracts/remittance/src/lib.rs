@@ -94,18 +94,29 @@ mod test {
         let to = Address::generate(&env);
 
         env.ledger().with_mut(|l| l.timestamp = 1);
+        // Em testes, habilita mock de autorizações para que require_auth() funcione
+        env.mock_all_auths();
 
+        // Use frames separados e sem require_auth explícito
         env.clone().as_contract(&contract_id, || {
             Remittance::init(env.clone(), admin.clone());
+        });
 
-            from.require_auth_for_args(soroban_sdk::vec![&env]);
-            let id = Remittance::create(env.clone(), from.clone(), to.clone(), 10);
+        let id: u128 = env.clone().as_contract(&contract_id, || {
+            Remittance::create(env.clone(), from.clone(), to.clone(), 10)
+        });
+
+        env.clone().as_contract(&contract_id, || {
             let info = Remittance::get(env.clone(), id).unwrap();
             assert_eq!(info.amount, 10);
             assert_eq!(info.status, Symbol::new(&env, "pending"));
+        });
 
-            admin.require_auth_for_args(soroban_sdk::vec![&env]);
+        env.clone().as_contract(&contract_id, || {
             Remittance::set_status(env.clone(), id, Symbol::new(&env, "settled"));
+        });
+
+        env.clone().as_contract(&contract_id, || {
             let info2 = Remittance::get(env.clone(), id).unwrap();
             assert_eq!(info2.status, Symbol::new(&env, "settled"));
         });

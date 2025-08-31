@@ -61,14 +61,21 @@ mod test {
         let contract_id = env.register_contract(None, RatesOracle);
         let admin = Address::generate(&env);
         
-        env.as_contract(&contract_id, || {
+        // Facilita require_auth() em ambiente de teste
+        env.mock_all_auths();
+
+        // Use frames separados para evitar reautorização na mesma frame
+        env.clone().as_contract(&contract_id, || {
             RatesOracle::init(env.clone(), admin.clone());
+        });
 
-            let pair = Symbol::new(&env, "XLM:BRL");
-            admin.require_auth_for_args(soroban_sdk::vec![&env]);
+        let pair = Symbol::new(&env, "xlm_brl");
+        env.clone().as_contract(&contract_id, || {
             RatesOracle::set_rate(env.clone(), pair.clone(), 123_456_789, 25);
+        });
 
-            let r = RatesOracle::get_rate(env, pair).unwrap();
+        env.clone().as_contract(&contract_id, || {
+            let r = RatesOracle::get_rate(env.clone(), pair.clone()).unwrap();
             assert_eq!(r.price, 123_456_789);
             assert_eq!(r.fee_bp, 25);
         });

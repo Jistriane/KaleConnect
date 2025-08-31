@@ -58,8 +58,8 @@ start_dev_server() {
     log "Iniciando servidor de desenvolvimento..."
     
     # Verificar se já está rodando
-    if lsof -Pi :3006 -sTCP:LISTEN -t >/dev/null ; then
-        warn "Servidor já está rodando na porta 3006"
+    if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null ; then
+        warn "Servidor já está rodando na porta 3000"
         info "Para parar: pkill -f 'next dev'"
         return
     fi
@@ -213,9 +213,9 @@ show_logs() {
 check_status() {
     log "Verificando status dos serviços..."
     
-    # Verificar porta 3006
-    if lsof -Pi :3006 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        info "✅ Servidor web rodando na porta 3006"
+    # Verificar porta 3000
+    if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        info "✅ Servidor web rodando na porta 3000"
     else
         info "❌ Servidor web não está rodando"
     fi

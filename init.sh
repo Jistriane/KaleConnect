@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# 🌿 KaleConnect - Script de Inicialização
-# Script para configurar e inicializar o ambiente de desenvolvimento do KaleConnect
-# Autor: Desenvolvido para o projeto KaleConnect
-# Data: $(date +%Y-%m-%d)
+# 🌿 KaleConnect - Script de Inicialização Completa
+# Script para configurar todo o ambiente de desenvolvimento do zero
 
-set -e  # Parar em caso de erro
+set -e
 
 # Cores para output
 RED='\033[0;31m'
@@ -13,222 +11,203 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-# Função para logging
+# Configurações
+PROJECT_NAME="KaleConnect"
+WEB_DIR="kaleconnect-web"
+CONTRACTS_DIR="contracts"
+TARGET_PORT=3000
+
 log() {
-    echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+    echo -e "${GREEN}[INIT] $1${NC}"
 }
 
 warn() {
-    echo -e "${YELLOW}[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}"
+    echo -e "${YELLOW}[INIT] WARNING: $1${NC}"
 }
 
 error() {
-    echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
+    echo -e "${RED}[INIT] ERROR: $1${NC}"
 }
 
 info() {
-    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] INFO: $1${NC}"
+    echo -e "${BLUE}[INIT] INFO: $1${NC}"
 }
 
-# Banner do projeto
+success() {
+    echo -e "${CYAN}[INIT] ✅ $1${NC}"
+}
+
+# Banner de inicialização
 print_banner() {
     echo -e "${PURPLE}"
     cat << "EOF"
     ╔══════════════════════════════════════════════════════════════╗
     ║                                                              ║
-    ║    🌿 KaleConnect - Remessas Inteligentes Multichain        ║
+    ║    🌿 KaleConnect - Inicialização Completa                  ║
     ║                                                              ║
-    ║    Uma plataforma global de remessas digitais tão fácil     ║
-    ║    quanto conversar no WhatsApp, mas extremamente           ║
-    ║    poderosa, segura e inclusiva.                            ║
+    ║    Remessas Inteligentes Multichain                         ║
     ║                                                              ║
     ╚══════════════════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"
+    echo
 }
 
-# Verificar se estamos no diretório correto
-check_project_structure() {
-    log "Verificando estrutura do projeto..."
+# Verificar pré-requisitos do sistema
+check_system_requirements() {
+    log "Verificando pré-requisitos do sistema..."
     
-    if [[ ! -f "package.json" || ! -d "kaleconnect-web" || ! -d "contracts" ]]; then
+    # Verificar se estamos no diretório correto
+    if [[ ! -f "package.json" || ! -d "$WEB_DIR" ]]; then
         error "Este script deve ser executado na raiz do projeto KaleConnect!"
-        error "Estrutura esperada: package.json, kaleconnect-web/, contracts/"
+        error "Estrutura esperada:"
+        error "  - package.json"
+        error "  - $WEB_DIR/"
+        error "  - $CONTRACTS_DIR/"
         exit 1
     fi
     
-    log "✅ Estrutura do projeto verificada"
-}
-
-# Verificar dependências do sistema
-check_system_dependencies() {
-    log "Verificando dependências do sistema..."
-    
-    # Node.js
+    # Verificar Node.js
     if ! command -v node &> /dev/null; then
-        error "Node.js não está instalado. Por favor, instale Node.js 18+ primeiro."
-        error "Visite: https://nodejs.org/"
+        error "Node.js não está instalado!"
+        error "Instale Node.js 18+ de: https://nodejs.org/"
         exit 1
     fi
     
-    NODE_VERSION=$(node -v | sed 's/v//')
-    NODE_MAJOR=$(echo $NODE_VERSION | cut -d. -f1)
-    if [[ $NODE_MAJOR -lt 18 ]]; then
-        error "Node.js versão 18+ é necessária. Versão atual: $NODE_VERSION"
+    local node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+    if [[ $node_version -lt 18 ]]; then
+        error "Node.js versão 18+ é necessária. Versão atual: $(node -v)"
         exit 1
     fi
-    log "✅ Node.js $NODE_VERSION detectado"
     
-    # npm
+    # Verificar npm
     if ! command -v npm &> /dev/null; then
-        error "npm não está instalado. Por favor, instale npm primeiro."
+        error "npm não está instalado!"
         exit 1
     fi
-    log "✅ npm $(npm -v) detectado"
     
-    # Rust (opcional, para smart contracts)
-    if command -v rustc &> /dev/null; then
-        log "✅ Rust $(rustc --version | cut -d' ' -f2) detectado"
+    # Verificar Git
+    if ! command -v git &> /dev/null; then
+        warn "Git não encontrado. Recomendado para controle de versão."
+    fi
+    
+    # Verificar Rust (opcional)
+    if command -v rustc &> /dev/null && command -v cargo &> /dev/null; then
+        info "✅ Rust $(rustc --version | cut -d' ' -f2) encontrado"
         RUST_AVAILABLE=true
     else
-        warn "Rust não detectado. Smart contracts não poderão ser compilados."
-        warn "Para instalar Rust: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+        warn "Rust não encontrado. Smart contracts não serão compilados."
+        warn "Para instalar: https://rustup.rs/"
         RUST_AVAILABLE=false
     fi
     
-    # Cargo (se Rust estiver disponível)
-    if [[ $RUST_AVAILABLE == true ]]; then
-        if command -v cargo &> /dev/null; then
-            log "✅ Cargo $(cargo --version | cut -d' ' -f2) detectado"
-        else
-            warn "Cargo não detectado, mas Rust está instalado. Algo pode estar errado."
-        fi
+    success "Pré-requisitos verificados"
+    echo
+    info "Versões encontradas:"
+    info "  Node.js: $(node -v)"
+    info "  npm: $(npm -v)"
+    if [[ "$RUST_AVAILABLE" == "true" ]]; then
+        info "  Rust: $(rustc --version | cut -d' ' -f2)"
+        info "  Cargo: $(cargo --version | cut -d' ' -f2)"
     fi
+    echo
 }
 
-# Configurar ambiente Rust para smart contracts
+# Configurar ambiente Rust
 setup_rust_environment() {
-    if [[ $RUST_AVAILABLE == false ]]; then
-        warn "Pulando configuração Rust - não disponível"
+    if [[ "$RUST_AVAILABLE" != "true" ]]; then
+        warn "Pulando configuração Rust (não disponível)"
         return
     fi
     
     log "Configurando ambiente Rust para smart contracts..."
     
-    # Atualizar Rust
-    info "Atualizando Rust..."
-    rustup update
+    # Verificar e adicionar target wasm32
+    if ! rustup target list --installed | grep -q "wasm32-unknown-unknown"; then
+        info "Adicionando target wasm32-unknown-unknown..."
+        rustup target add wasm32-unknown-unknown
+    fi
     
-    # Adicionar target WASM
-    info "Adicionando target wasm32-unknown-unknown..."
-    rustup target add wasm32-unknown-unknown
-    
-    # Verificar se soroban-cli está instalado
+    # Verificar Soroban CLI (opcional)
     if command -v soroban &> /dev/null; then
-        log "✅ Soroban CLI já instalado: $(soroban --version)"
+        info "✅ Soroban CLI encontrado: $(soroban --version)"
     else
-        info "Soroban CLI não detectado. Você pode instalá-lo com:"
-        info "cargo install --locked soroban-cli"
+        warn "Soroban CLI não encontrado"
+        info "Para instalar: cargo install --locked soroban-cli"
     fi
     
-    log "✅ Ambiente Rust configurado"
+    success "Ambiente Rust configurado"
 }
 
-# Instalar dependências do projeto raiz
-install_root_dependencies() {
-    log "Instalando dependências do projeto raiz..."
+# Instalar dependências
+install_dependencies() {
+    log "Instalando dependências do projeto..."
     
-    if [[ -f "package-lock.json" ]]; then
-        npm ci
-    else
-        npm install
-    fi
+    # Instalar dependências raiz
+    info "Instalando dependências da raiz..."
+    npm install
     
-    log "✅ Dependências do projeto raiz instaladas"
-}
-
-# Instalar dependências da aplicação web
-install_web_dependencies() {
-    log "Instalando dependências da aplicação web..."
-    
-    cd kaleconnect-web
-    
-    if [[ -f "package-lock.json" ]]; then
-        npm ci
-    else
-        npm install
-    fi
-    
+    # Instalar dependências da aplicação web
+    info "Instalando dependências da aplicação web..."
+    cd "$WEB_DIR"
+    npm install
     cd ..
-    log "✅ Dependências da aplicação web instaladas"
+    
+    success "Dependências instaladas"
 }
 
 # Compilar smart contracts
 build_smart_contracts() {
-    if [[ $RUST_AVAILABLE == false ]]; then
-        warn "Pulando compilação de smart contracts - Rust não disponível"
+    if [[ "$RUST_AVAILABLE" != "true" ]]; then
+        warn "Pulando compilação de smart contracts (Rust não disponível)"
         return
     fi
     
     log "Compilando smart contracts Soroban..."
     
-    cd contracts
+    cd "$CONTRACTS_DIR"
     
-    # Build para host (desenvolvimento/testes)
-    info "Compilando para host..."
+    # Build para desenvolvimento
+    info "Compilando para desenvolvimento..."
     cargo build --workspace
     
-    # Build para WASM (deploy)
+    # Build para WASM
     info "Compilando para WASM..."
     cargo build -p remittance --release --target wasm32-unknown-unknown
-    cargo build -p kyc_registry --release --target wasm32-unknown-unknown
+    cargo build -p kyc_registry --release --target wasm32-unknown-unknown  
     cargo build -p rates_oracle --release --target wasm32-unknown-unknown
     
-    # Verificar se os arquivos WASM foram gerados
-    WASM_DIR="target/wasm32-unknown-unknown/release"
-    if [[ -f "$WASM_DIR/remittance.wasm" && -f "$WASM_DIR/kyc_registry.wasm" && -f "$WASM_DIR/rates_oracle.wasm" ]]; then
-        log "✅ Smart contracts compilados com sucesso"
-        info "Arquivos WASM gerados em: contracts/$WASM_DIR/"
-    else
-        error "Falha na compilação dos smart contracts"
-        exit 1
-    fi
-    
     cd ..
+    
+    success "Smart contracts compilados"
 }
 
 # Executar testes dos smart contracts
 test_smart_contracts() {
-    if [[ $RUST_AVAILABLE == false ]]; then
-        warn "Pulando testes de smart contracts - Rust não disponível"
+    if [[ "$RUST_AVAILABLE" != "true" ]]; then
+        warn "Pulando testes de smart contracts (Rust não disponível)"
         return
     fi
     
     log "Executando testes dos smart contracts..."
     
-    cd contracts
-    
-    cargo test -p remittance
-    cargo test -p kyc_registry
-    cargo test -p rates_oracle
-    
+    cd "$CONTRACTS_DIR"
+    cargo test --workspace
     cd ..
-    log "✅ Testes dos smart contracts executados"
+    
+    success "Testes dos smart contracts executados"
 }
 
-# Criar arquivo de variáveis de ambiente se não existir
-setup_environment_variables() {
-    log "Configurando variáveis de ambiente..."
+# Criar arquivos de ambiente
+create_environment_files() {
+    log "Criando arquivos de ambiente..."
     
-    ENV_FILE="kaleconnect-web/.env.local"
-    
-    if [[ ! -f "$ENV_FILE" ]]; then
-        info "Criando arquivo de variáveis de ambiente: $ENV_FILE"
-        cat > "$ENV_FILE" << 'EOF'
-# KaleConnect Environment Variables
-# Copie este arquivo e ajuste as variáveis conforme necessário
+    # Template para .env.local (desenvolvimento)
+    local env_dev_content='# 🌿 KaleConnect - Configuração de Desenvolvimento
+# Gerado automaticamente pelo init.sh
 
 # Next.js
 NEXT_PUBLIC_APP_NAME=KaleConnect
@@ -236,86 +215,267 @@ NEXT_PUBLIC_APP_VERSION=0.1.0
 
 # Stellar Network Configuration
 NEXT_PUBLIC_STELLAR_NETWORK=testnet
+NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
+NEXT_PUBLIC_SOROBAN_RPC=https://soroban-testnet.stellar.org
+
+# Contract IDs (Testnet)
+NEXT_PUBLIC_CONTRACT_ID_REMITTANCE=CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN
+NEXT_PUBLIC_CONTRACT_ID_KYC=CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4
+NEXT_PUBLIC_CONTRACT_ID_RATES=CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT
 
 # WebAuthn Configuration
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 
-# ElizaOS Configuration
+# ElizaOS Configuration (Opcional)
 ELIZA_API_URL=http://localhost:3001
 ELIZA_API_KEY=your-eliza-api-key-here
 
-# Database (se necessário)
-# DATABASE_URL=postgresql://user:password@localhost:5432/kaleconnect
+# Security (gerados automaticamente em produção)
+APP_CRYPTO_SECRET=dev-secret-key-change-in-production
+AUDIT_LOG_SECRET=dev-audit-secret-change-in-production
 
-# Logging
+# Development Settings
 LOG_LEVEL=info
-
-# Development
 NODE_ENV=development
-EOF
-        log "✅ Arquivo de ambiente criado: $ENV_FILE"
-        warn "IMPORTANTE: Revise e ajuste as variáveis de ambiente em $ENV_FILE"
+PORT=3000'
+
+    # Template para .env-homolog
+    local env_homolog_content='# 🌿 KaleConnect - Configuração de Homologação
+# Configure para seu ambiente de homologação
+
+# Next.js
+NEXT_PUBLIC_APP_NAME=KaleConnect (Homolog)
+NEXT_PUBLIC_APP_VERSION=0.1.0
+
+# Stellar Network Configuration
+NEXT_PUBLIC_STELLAR_NETWORK=testnet
+NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
+NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
+NEXT_PUBLIC_SOROBAN_RPC=https://soroban-testnet.stellar.org
+
+# Contract IDs (Testnet) - Configure com seus contratos
+NEXT_PUBLIC_CONTRACT_ID_REMITTANCE=YOUR_REMITTANCE_CONTRACT_ID
+NEXT_PUBLIC_CONTRACT_ID_KYC=YOUR_KYC_CONTRACT_ID
+NEXT_PUBLIC_CONTRACT_ID_RATES=YOUR_RATES_CONTRACT_ID
+
+# WebAuthn Configuration - AJUSTE PARA SEU DOMÍNIO
+NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
+NEXT_PUBLIC_WEBAUTHN_RP_ID=your-homolog-domain.com
+WEBAUTHN_RP_ORIGIN=https://your-homolog-domain.com
+
+# ElizaOS Configuration
+ELIZA_API_URL=https://your-eliza-api.com
+ELIZA_API_KEY=your-eliza-api-key
+
+# Security - GERE CHAVES SEGURAS
+APP_CRYPTO_SECRET=generate-secure-key-for-homolog
+AUDIT_LOG_SECRET=generate-secure-audit-key-for-homolog
+
+# Optional: OpenAI for AI features
+# OPENAI_API_KEY=your-openai-key
+
+# Environment Settings
+LOG_LEVEL=warn
+NODE_ENV=production
+PORT=3000'
+
+    # Template para .env-prod
+    local env_prod_content='# 🌿 KaleConnect - Configuração de Produção
+# Configure para seu ambiente de produção
+
+# Next.js
+NEXT_PUBLIC_APP_NAME=KaleConnect
+NEXT_PUBLIC_APP_VERSION=0.1.0
+
+# Stellar Network Configuration - MAINNET OU TESTNET
+NEXT_PUBLIC_STELLAR_NETWORK=mainnet
+NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Public Global Stellar Network ; September 2015
+NEXT_PUBLIC_HORIZON_URL=https://horizon.stellar.org
+NEXT_PUBLIC_SOROBAN_RPC=https://soroban-rpc.mainnet.stellarx.com
+
+# Contract IDs (Mainnet) - CONFIGURE COM SEUS CONTRATOS DEPLOYADOS
+NEXT_PUBLIC_CONTRACT_ID_REMITTANCE=YOUR_MAINNET_REMITTANCE_CONTRACT_ID
+NEXT_PUBLIC_CONTRACT_ID_KYC=YOUR_MAINNET_KYC_CONTRACT_ID
+NEXT_PUBLIC_CONTRACT_ID_RATES=YOUR_MAINNET_RATES_CONTRACT_ID
+
+# WebAuthn Configuration - CONFIGURE SEU DOMÍNIO PRODUÇÃO
+NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
+NEXT_PUBLIC_WEBAUTHN_RP_ID=your-production-domain.com
+WEBAUTHN_RP_ORIGIN=https://your-production-domain.com
+
+# ElizaOS Configuration
+ELIZA_API_URL=https://your-production-eliza-api.com
+ELIZA_API_KEY=your-production-eliza-api-key
+
+# Security - GERE CHAVES ULTRA SEGURAS
+APP_CRYPTO_SECRET=generate-ultra-secure-key-for-production
+AUDIT_LOG_SECRET=generate-ultra-secure-audit-key-for-production
+
+# Optional: OpenAI for AI features
+# OPENAI_API_KEY=your-production-openai-key
+
+# Environment Settings
+LOG_LEVEL=error
+NODE_ENV=production
+PORT=3000'
+
+    # Criar .env.local se não existir
+    if [[ ! -f "$WEB_DIR/.env.local" ]]; then
+        info "Criando $WEB_DIR/.env.local..."
+        echo "$env_dev_content" > "$WEB_DIR/.env.local"
     else
-        log "✅ Arquivo de ambiente já existe: $ENV_FILE"
+        warn "Arquivo $WEB_DIR/.env.local já existe, não sobrescrevendo"
     fi
+    
+    # Criar templates de ambiente
+    info "Criando templates de ambiente..."
+    echo "$env_homolog_content" > ".env-homolog"
+    echo "$env_prod_content" > ".env-prod"
+    echo "$env_dev_content" > ".env-dev"
+    
+    success "Arquivos de ambiente criados"
+    echo
+    info "Arquivos criados:"
+    info "  📄 $WEB_DIR/.env.local (desenvolvimento ativo)"
+    info "  📄 .env-dev (template desenvolvimento)"
+    info "  📄 .env-homolog (template homologação)"
+    info "  📄 .env-prod (template produção)"
+    echo
+    warn "⚠️  IMPORTANTE: Configure as variáveis para seus ambientes específicos!"
+    warn "⚠️  Para produção, gere chaves seguras para APP_CRYPTO_SECRET e AUDIT_LOG_SECRET"
 }
 
-# Verificar se a aplicação pode ser iniciada
-test_application_startup() {
-    log "Testando inicialização da aplicação..."
+# Testar build da aplicação
+test_application_build() {
+    log "Testando build da aplicação..."
     
-    cd kaleconnect-web
+    cd "$WEB_DIR"
     
-    # Build da aplicação para verificar se tudo está OK
+    # Verificar se há erros de lint
+    info "Executando linter..."
+    npm run lint
+    
+    # Testar build
     info "Executando build de teste..."
-    if npm run build; then
-        log "✅ Build da aplicação executado com sucesso"
-    else
-        error "Falha no build da aplicação. Verifique os logs acima."
-        exit 1
-    fi
+    npm run build
     
     cd ..
+    
+    success "Build da aplicação testado com sucesso"
 }
 
-# Exibir informações finais
+# Verificar se porta está disponível
+check_port_availability() {
+    if lsof -Pi :$TARGET_PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
+        warn "Porta $TARGET_PORT já está em uso"
+        info "Para parar serviços na porta: pkill -f 'next dev'"
+        info "Ou altere a porta em $WEB_DIR/package.json"
+    else
+        success "Porta $TARGET_PORT disponível"
+    fi
+}
+
+# Criar script de inicialização rápida
+create_quick_start_script() {
+    log "Criando script de inicialização rápida..."
+    
+    cat > quick-start.sh << 'EOF'
+#!/bin/bash
+# 🚀 KaleConnect - Inicialização Rápida
+# Script para desenvolvedores que já têm o ambiente configurado
+
+echo "🌿 KaleConnect - Inicialização Rápida"
+echo
+
+# Verificar se as dependências estão instaladas
+if [[ ! -d "kaleconnect-web/node_modules" ]]; then
+    echo "📦 Instalando dependências..."
+    cd kaleconnect-web && npm install && cd ..
+fi
+
+# Verificar se o .env.local existe
+if [[ ! -f "kaleconnect-web/.env.local" ]]; then
+    echo "⚠️  Arquivo .env.local não encontrado!"
+    echo "Execute: ./init.sh para configuração completa"
+    exit 1
+fi
+
+# Iniciar servidor de desenvolvimento
+echo "🚀 Iniciando servidor de desenvolvimento..."
+cd kaleconnect-web
+npm run dev
+EOF
+    
+    chmod +x quick-start.sh
+    
+    success "Script quick-start.sh criado"
+}
+
+# Instruções finais
 show_final_instructions() {
     echo
-    log "🎉 Inicialização do KaleConnect concluída com sucesso!"
-    echo
-    info "Para iniciar o desenvolvimento:"
-    echo
-    echo -e "${YELLOW}  # Navegar para o diretório da aplicação web${NC}"
-    echo -e "${BLUE}  cd kaleconnect-web${NC}"
-    echo
-    echo -e "${YELLOW}  # Iniciar o servidor de desenvolvimento${NC}"
-    echo -e "${BLUE}  npm run dev${NC}"
-    echo
-    echo -e "${YELLOW}  # A aplicação estará disponível em:${NC}"
-    echo -e "${GREEN}  http://localhost:3006${NC}"
+    echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${PURPLE}║                                                              ║${NC}"
+    echo -e "${PURPLE}║    ✅ Inicialização Concluída com Sucesso!                 ║${NC}"
+    echo -e "${PURPLE}║                                                              ║${NC}"
+    echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo
     
-    if [[ $RUST_AVAILABLE == true ]]; then
-        info "Smart Contracts Soroban:"
-        echo -e "${BLUE}  cd contracts${NC}"
-        echo -e "${BLUE}  cargo test --workspace     # Executar todos os testes${NC}"
-        echo -e "${BLUE}  cargo build --workspace    # Build para desenvolvimento${NC}"
+    success "🎉 KaleConnect está pronto para desenvolvimento!"
+    echo
+    
+    info "📋 Próximos passos:"
+    echo
+    echo -e "  ${CYAN}1. Iniciar desenvolvimento:${NC}"
+    echo "     npm run dev"
+    echo "     # ou"
+    echo "     make dev"
+    echo "     # ou"
+    echo "     ./dev.sh start"
+    echo "     # ou"
+    echo "     ./quick-start.sh"
+    echo
+    
+    echo -e "  ${CYAN}2. Acessar aplicação:${NC}"
+    echo "     http://localhost:$TARGET_PORT"
+    echo
+    
+    echo -e "  ${CYAN}3. Comandos úteis:${NC}"
+    echo "     make help           # Ver todos comandos disponíveis"
+    echo "     ./dev.sh status     # Verificar status dos serviços"
+    echo "     ./dev.sh test       # Executar testes"
+    echo "     ./dev.sh lint       # Verificar código"
+    echo "     ./dev.sh clean      # Limpar builds"
+    echo
+    
+    if [[ "$RUST_AVAILABLE" == "true" ]]; then
+        echo -e "  ${CYAN}4. Smart Contracts:${NC}"
+        echo "     make contracts      # Compilar contratos"
+        echo "     make rust-test      # Testar contratos"
+        echo "     ./deploy.sh contracts # Deploy contratos"
         echo
     fi
     
-    info "Scripts úteis:"
-    echo -e "${BLUE}  ./init.sh                  # Executar este script novamente${NC}"
-    echo -e "${BLUE}  npm run build              # Build de produção${NC}"
-    echo -e "${BLUE}  npm run lint               # Verificar código${NC}"
+    echo -e "  ${CYAN}5. Deploy:${NC}"
+    echo "     ./deploy.sh vercel  # Deploy para Vercel"
+    echo "     ./deploy.sh docker  # Build Docker"
+    echo "     ./deploy.sh static  # Build estático"
     echo
     
-    warn "Não esqueça de:"
-    echo -e "${YELLOW}  • Revisar as variáveis de ambiente em kaleconnect-web/.env.local${NC}"
-    echo -e "${YELLOW}  • Configurar suas chaves de API (ElizaOS, Stellar, etc.)${NC}"
-    echo -e "${YELLOW}  • Ler a documentação no README.md${NC}"
+    echo -e "  ${YELLOW}📚 Documentação:${NC}"
+    echo "     docs/README.pt-BR.md     # Documentação completa"
+    echo "     docs/MANUAL.pt-BR.md     # Manual de operação"
+    echo "     SCRIPTS.md               # Documentação dos scripts"
+    echo
+    
+    if [[ ! -f "$WEB_DIR/.env.local" ]]; then
+        warn "⚠️  Configure o arquivo $WEB_DIR/.env.local com suas chaves e URLs"
+    fi
+    
+    warn "⚠️  Para produção, configure variáveis de ambiente seguras em .env-prod"
     echo
 }
 
@@ -323,18 +483,15 @@ show_final_instructions() {
 main() {
     print_banner
     
-    check_project_structure
-    check_system_dependencies
-    
+    check_system_requirements
     setup_rust_environment
-    install_root_dependencies
-    install_web_dependencies
-    
+    install_dependencies
     build_smart_contracts
     test_smart_contracts
-    
-    setup_environment_variables
-    test_application_startup
+    create_environment_files
+    test_application_build
+    check_port_availability
+    create_quick_start_script
     
     show_final_instructions
 }

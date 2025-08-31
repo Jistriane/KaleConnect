@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import WalletButtons from "@/components/WalletButtons";
 import ElisaChat from "@/components/ElisaChat";
+import InteractiveDemo from "@/components/InteractiveDemo";
 import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
 
 export default function Home() {
@@ -295,10 +296,15 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Demo Actions */}
+          {/* Demo Interativa Aprimorada */}
+          <section>
+            <InteractiveDemo />
+          </section>
+
+          {/* Demo Actions - Versão Clássica */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
             <h2 className="text-xl font-semibold text-center mb-6 text-slate-800 dark:text-slate-200">
-              🎯 {lang === "pt" ? "Demonstração Interativa" : "Interactive Demo"}
+              🔧 {lang === "pt" ? "Demo Rápida - Versão Clássica" : "Quick Demo - Classic Version"}
             </h2>
             <div className="grid gap-4 sm:grid-cols-3 max-w-3xl mx-auto">
               <button

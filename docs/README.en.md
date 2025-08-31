@@ -69,7 +69,7 @@ make dev
 cd kaleconnect-web && npm run dev
 ```
 
-Open: http://localhost:3006
+Open: http://localhost:3000
 
 ---
 
@@ -88,7 +88,7 @@ NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 # WebAuthn
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 
 # ElizaOS
 ELIZA_API_URL=http://localhost:3001
@@ -97,6 +97,7 @@ ELIZA_API_KEY=your-eliza-api-key-here
 # Logging & Env
 LOG_LEVEL=info
 NODE_ENV=development
+PORT=3000
 ```
 
 Adjust values for your environment (production: RP domain/origin, keys, secrets, URLs).
@@ -131,7 +132,7 @@ Route handlers live under `kaleconnect-web/src/app/api/*`.
 - Remittances: `POST /api/remit`, `GET /api/remit/[id]`
 - Rates: `GET /api/rates?from=XLM&to=BRL&amount=100`
 - ElisaOS: `POST /api/elisa/chat`
-- Audit: `GET /api/audit`
+- Audit: `GET /api/audit`, `POST /api/remit/audit`
 
 See `curl` examples in `kaleconnect-web/README.md`.
 
@@ -176,6 +177,17 @@ docker run -p 3000:3000 kaleconnect-web:latest
 
 ---
 
+### Environment variables (Production)
+- `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
+- `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
+- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`
+- `NEXT_PUBLIC_CONTRACT_ID_KYC = CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
+- `NEXT_PUBLIC_CONTRACT_ID_RATES = CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
+- `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (generated)
+- (Optional) `OPENAI_API_KEY`
+
+---
+
 ## 🔐 Security
 
 - Use environment variables for secrets (don’t commit `.env*`).
@@ -195,7 +207,7 @@ docker run -p 3000:3000 kaleconnect-web:latest
 
 ## 🛠️ Troubleshooting
 
-- Busy port (3006): stop Next processes (`pkill -f 'next dev'`) or change port.
+- Busy port (3000): stop Next processes (`pkill -f 'next dev'`) or change port.
 - Rust build failure: ensure `wasm32-unknown-unknown` and proper `rustup`/`cargo` versions.
 - WebAuthn in dev: ensure `WEBAUTHN_RP_ORIGIN` matches the actual origin.
 - External HTTP failures: check variables (Horizon, ElizaOS) and connectivity.

@@ -43,7 +43,7 @@ KaleConnect é uma plataforma inovadora de remessas internacionais que combina a
    ```
 
 4. **Acesse a aplicação**
-   - Abra [http://localhost:3006](http://localhost:3006) no seu navegador
+   - Abra [http://localhost:3000](http://localhost:3000) no seu navegador
    - A porta pode variar se 3000 estiver ocupada
 
 ### Scripts Disponíveis
@@ -182,23 +182,23 @@ Todos os endpoints são implementados como Next.js App Router route handlers em 
 
 ```bash
 # Iniciar KYC
-curl -s -X POST http://localhost:3006/api/kyc/start \
+curl -s -X POST http://localhost:3000/api/kyc/start \
   -H 'content-type: application/json' \
   -d '{"userId":"user123"}'
 
 # Verificar status do KYC
-curl -s 'http://localhost:3006/api/kyc/status?id=KYC_ID'
+curl -s 'http://localhost:3000/api/kyc/status?id=KYC_ID'
 
 # Criar remessa
-curl -s -X POST http://localhost:3006/api/remit \
+curl -s -X POST http://localhost:3000/api/remit \
   -H 'content-type: application/json' \
   -d '{"from":"XLM","to":"USDC","amount":50}'
 
 # Verificar remessa
-curl -s http://localhost:3006/api/remit/REMIT_ID
+curl -s http://localhost:3000/api/remit/REMIT_ID
 
 # Obter cotação
-curl -s 'http://localhost:3006/api/rates?from=XLM&to=BRL&amount=100'
+curl -s 'http://localhost:3000/api/rates?from=XLM&to=BRL&amount=100'
 ```
 
 ## 🚀 Deployment

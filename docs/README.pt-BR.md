@@ -69,7 +69,7 @@ make dev
 cd kaleconnect-web && npm run dev
 ```
 
-Acesse: http://localhost:3006
+Acesse: http://localhost:3000
 
 ---
 
@@ -88,7 +88,7 @@ NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 # WebAuthn
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 
 # ElizaOS
 ELIZA_API_URL=http://localhost:3001
@@ -97,6 +97,7 @@ ELIZA_API_KEY=your-eliza-api-key-here
 # Logging & Env
 LOG_LEVEL=info
 NODE_ENV=development
+PORT=3000
 ```
 
 Ajuste valores conforme seu ambiente (produção: alterar URLs/domínio RP, chaves e secrets).
@@ -131,7 +132,7 @@ Os handlers residem em `kaleconnect-web/src/app/api/*`.
 - Remessas: `POST /api/remit`, `GET /api/remit/[id]`
 - Cotações: `GET /api/rates?from=XLM&to=BRL&amount=100`
 - ElisaOS: `POST /api/elisa/chat`
-- Auditoria: `GET /api/audit`
+- Auditoria: `GET /api/audit`, `POST /api/remit/audit`
 
 Consulte exemplos de `curl` no `kaleconnect-web/README.md`.
 
@@ -197,9 +198,9 @@ Endpoints principais (base: URLs acima):
 Variáveis (Production):
 - `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
 - `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
-- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CCVIO6YVRPWOGH5RVXTTCZQPPABUZCNUEAVB75SRZDS3ECFOTFSXZOQ4`
-- `NEXT_PUBLIC_CONTRACT_ID_KYC = CDGUWD4KJHGLGNEFUS2E6N5MDL7Z34IACKEYD6ZC3DB7IS47MHLKKJG6`
-- `NEXT_PUBLIC_CONTRACT_ID_RATES = CDAREYRUQPR6C5PRJIBEREP5IM2UJ2YOPCFDMYNMMORSTFSH2NIXK5G6`
+- `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`
+- `NEXT_PUBLIC_CONTRACT_ID_KYC = CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
+- `NEXT_PUBLIC_CONTRACT_ID_RATES = CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
 - `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (gerados)
 - (Opcional) `OPENAI_API_KEY`
 
@@ -222,7 +223,7 @@ Variáveis (Production):
 
 ## 🛠️ Solução de Problemas
 
-- Porta ocupada (3006): pare processos Next (`pkill -f 'next dev'`) ou altere porta.
+- Porta ocupada (3000): pare processos Next (`pkill -f 'next dev'`) ou altere porta.
 - Falha em build Rust: confirme `wasm32-unknown-unknown` e versões `rustup`/`cargo`.
 - WebAuthn em dev: use `WEBAUTHN_RP_ORIGIN` consistente com a origem utilizada.
 - Falhas HTTP externas: verifique variáveis (Horizon, ElizaOS) e conectividade.

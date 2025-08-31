@@ -223,7 +223,7 @@ NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 # WebAuthn Configuration
 NEXT_PUBLIC_WEBAUTHN_RP_NAME=KaleConnect
 NEXT_PUBLIC_WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_ORIGIN=http://localhost:3006
+WEBAUTHN_RP_ORIGIN=http://localhost:3000
 
 # ElizaOS Configuration
 ELIZA_API_URL=http://localhost:3001
@@ -261,10 +261,10 @@ make rust-setup
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-**4. Porta 3006 ocupada**
+**4. Porta 3000 ocupada**
 ```bash
 # Verificar processos na porta
-lsof -i :3006
+lsof -i :3000
 
 # Parar processo Next.js
 pkill -f "next dev"
