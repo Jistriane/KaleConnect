@@ -20,12 +20,8 @@ export default function Home() {
     window.addEventListener("langchange", handler as EventListener);
     return () => window.removeEventListener("langchange", handler as EventListener);
   }, []);
-  // Estados de UI para substituir alerts
-  const [quoteText, setQuoteText] = useState<string>("");
-  const [remitId, setRemitId] = useState<string | null>(null);
-  const [remitStatus, setRemitStatus] = useState<string | null>(null);
-  const [kycId, setKycId] = useState<string | null>(null);
-  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  // Estados da UI
+  const [showElisa, setShowElisa] = useState(false);
 
   const t = (key: string) => {
     const dict: Record<string, { pt: string; en: string }> = {
@@ -35,13 +31,7 @@ export default function Home() {
       heroDesc: { pt: "Conecte-se ao futuro das finanças descentralizadas com nossa plataforma inteligente que combina IA, blockchain e experiência de usuário excepcional.", en: "Connect to the future of decentralized finance with our smart platform that combines AI, blockchain and exceptional user experience." },
       passkey: { pt: "🔐 Entrar com Passkey", en: "🔐 Sign in with Passkey" },
       connect: { pt: "💼 Conectar Carteiras", en: "💼 Connect Wallets" },
-      demo: { pt: "🚀 Demo Interativo", en: "🚀 Interactive Demo" },
-      quote: { pt: "💱 Cotação em Tempo Real", en: "💱 Real-time Quote" },
-      remit: { pt: "⚡ Enviar Remessa", en: "⚡ Send Remittance" },
-      kyc: { pt: "🛡️ Verificação KYC", en: "🛡️ KYC Verification" },
-      quoteLabel: { pt: "💱 Cotação Atual:", en: "💱 Current Quote:" },
-      remitLabel: { pt: "📤 Status da Remessa:", en: "📤 Remittance Status:" },
-      kycLabel: { pt: "🛡️ Status KYC:", en: "🛡️ KYC Status:" },
+
       apis: { pt: "🔗 APIs Disponíveis:", en: "🔗 Available APIs:" },
       features: { pt: "Recursos Principais", en: "Key Features" },
       passkeyRegisterFailed: { pt: "❌ Falha no registro do Passkey", en: "❌ Passkey registration failed" },
@@ -146,56 +136,11 @@ export default function Home() {
     }
   }
 
-  async function onQuote() {
-    const res = await fetch("/api/rates?from=XLM&to=BRL&amount=10");
-    const data = await res.json();
-    setQuoteText(`10 ${data.from} ≈ ${data.toAmount} ${data.to} (taxa ${data.feePct}%)`);
-  }
 
-  async function onRemit() {
-    const res = await fetch("/api/remit", { method: "POST", body: JSON.stringify({ from: "XLM", to: "USDC", amount: 5 }), headers: { "Content-Type": "application/json" } });
-    const data = await res.json();
-    if (!data?.id) {
-      setRemitId(null);
-      setRemitStatus("error");
-      return;
-    }
-    const id: string = data.id;
-    setRemitId(id);
-    setRemitStatus(data.status as string);
-    // Polling simples até settled/failed
-    let current: string = data.status;
-    for (let i = 0; i < 5 && current !== "settled" && current !== "failed"; i++) {
-      await new Promise(r => setTimeout(r, 800));
-      const s = await fetch(`/api/remit/${encodeURIComponent(id)}`).then(r => r.json());
-      current = s?.status ?? current;
-      setRemitStatus(current);
-    }
-  }
 
-  async function onKyc() {
-    // Inicia KYC e faz polling de status
-    const started = await fetch("/api/kyc/start", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user@example.com" }),
-    }).then(r => r.json());
-    if (!started?.id) {
-      setKycId(null);
-      setKycStatus("error");
-      return;
-    }
-    setKycId(started.id as string);
-    setKycStatus(started.status as string);
-    let status: string = started.status;
-    const id: string = started.id;
-    for (let i = 0; i < 4 && status !== "approved" && status !== "rejected"; i++) {
-      await new Promise(r => setTimeout(r, 800));
-      const s = await fetch(`/api/kyc/status?id=${encodeURIComponent(id)}`).then(r => r.json());
-      status = s?.status ?? status;
-      setKycStatus(status);
-    }
-  }
+
+
+
 
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-100">
@@ -301,76 +246,7 @@ export default function Home() {
             <InteractiveDemo />
           </section>
 
-          {/* Demo Actions - Versão Clássica */}
-          <section className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <h2 className="text-xl font-semibold text-center mb-6 text-slate-800 dark:text-slate-200">
-              🔧 {lang === "pt" ? "Demo Rápida - Versão Clássica" : "Quick Demo - Classic Version"}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-3 max-w-3xl mx-auto">
-              <button
-                className="h-12 rounded-xl btn-outline-slate flex items-center justify-center gap-2 font-medium transition-all duration-300 hover:scale-105"
-                onClick={onQuote}
-              >
-                {t("quote")}
-              </button>
-              <button
-                className="h-12 rounded-xl btn-outline-teal flex items-center justify-center gap-2 font-medium transition-all duration-300 hover:scale-105"
-                onClick={onRemit}
-              >
-                {t("remit")}
-              </button>
-              <button
-                className="h-12 rounded-xl btn-outline-sky flex items-center justify-center gap-2 font-medium transition-all duration-300 hover:scale-105"
-                onClick={onKyc}
-              >
-                {t("kyc")}
-              </button>
-            </div>
-          </section>
 
-          {/* Results Dashboard */}
-          {(quoteText || remitId || remitStatus || kycId || kycStatus) && (
-            <section className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold mb-4 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                📊 {lang === "pt" ? "Resultados em Tempo Real" : "Real-time Results"}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3">
-                {quoteText && (
-                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm" aria-live="polite" role="status">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">💱</span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">{t("quoteLabel")}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{quoteText}</p>
-                  </div>
-                )}
-                {(remitId || remitStatus) && (
-                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm" aria-live="polite" role="status">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">📤</span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">{t("remitLabel")}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-slate-500 dark:text-slate-400">ID: {remitId ?? "-"}</p>
-                      <span className="badge badge-yellow inline-block">{remitStatus ?? "-"}</span>
-                    </div>
-                  </div>
-                )}
-                {(kycId || kycStatus) && (
-                  <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm" aria-live="polite" role="status">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">🛡️</span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">{t("kycLabel")}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-slate-500 dark:text-slate-400">ID: {kycId ?? "-"}</p>
-                      <span className="badge badge-lavender inline-block">{kycStatus ?? "-"}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
 
           {/* AI Chat Assistant */}
           <section className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 rounded-2xl p-6 border border-indigo-200 dark:border-indigo-800">
