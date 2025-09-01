@@ -94,3 +94,39 @@ sequenceDiagram
 - App Router with lightweight handlers
 - Offload settlement logic to Soroban
 - Optional caching for rates and async audit processing
+
+---
+
+## 🚀 Production Deployment
+
+### Active Infrastructure
+
+#### Vercel (Frontend + Backend)
+- **🌐 Main URL**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Dashboard**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Network**: Stellar Testnet
+- **⚡ Status**: Operational 24/7
+
+#### Active Backend APIs
+```
+/api/health      - Health check with detailed metrics
+/api/monitoring  - Prometheus observability
+/api/auth/*      - WebAuthn/Passkey authentication
+/api/kyc/*       - KYC Registry integration
+/api/rates       - Real-time exchange rates
+/api/remit/*     - International remittances
+/api/elisa/chat  - AI assistant chat
+/api/audit       - Cryptographic audit logs
+```
+
+#### Production Configuration
+- **Rate Limiting**: 20 requests/minute per IP
+- **Monitoring**: Structured logs + real-time metrics
+- **Security**: CSP headers, HSTS, cryptographic audit
+- **Performance**: Optimized middleware + intelligent cache
+- **CI/CD**: Automatic deployment via GitHub Actions
+
+#### Soroban Contracts (Testnet)
+- **KYC Registry**: `CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
+- **Rates Oracle**: `CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
+- **Remittance**: `CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`

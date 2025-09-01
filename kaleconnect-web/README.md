@@ -49,11 +49,48 @@ KaleConnect é uma plataforma inovadora de remessas internacionais que combina a
 ### Scripts Disponíveis
 
 ```bash
-npm run dev      # Inicia o servidor de desenvolvimento com Turbopack
-npm run build    # Cria a build de produção
-npm run start    # Inicia o servidor de produção
-npm run lint     # Executa o linter
+npm run dev              # Inicia o servidor de desenvolvimento com Turbopack
+npm run dev:testnet      # Desenvolvimento com configurações testnet
+npm run build            # Cria a build de produção
+npm run build:testnet    # Build otimizado para testnet
+npm run start            # Inicia o servidor de produção
+npm run lint             # Executa o linter
+npm run lint:fix         # Corrige problemas do linter automaticamente
+npm run type-check       # Verificação de tipos TypeScript
+npm run deploy:testnet   # Deploy automático para Vercel testnet
 ```
+
+### 🚀 Deploy Rápido para Testnet
+
+Para fazer deploy automático na Vercel com configuração testnet:
+
+```bash
+# Deploy único (primeira vez)
+npm run deploy:testnet
+```
+
+📖 **[Guia Completo de Deploy Testnet](./DEPLOY_TESTNET.md)**
+
+#### Deploy Automático via GitHub
+- **Push para `main`**: Deploy produção automático
+- **Pull Request**: Deploy preview para testes
+- **Commits**: Validação contínua (lint + build)
+
+#### URLs de Deploy Atuais
+- **🚀 Produção Ativa**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Dashboard Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Rede**: Stellar Testnet
+- **⚡ Status**: Operacional 24/7
+
+#### APIs Backend Integradas
+- **Health Check**: `/api/health` - Status do sistema
+- **Monitoring**: `/api/monitoring` - Métricas Prometheus
+- **WebAuthn**: `/api/auth/passkey/*` - Autenticação biométrica
+- **KYC**: `/api/kyc/*` - Verificação de identidade
+- **Rates**: `/api/rates` - Cotações em tempo real
+- **Remittances**: `/api/remit/*` - Transferências
+- **Elisa Chat**: `/api/elisa/chat` - Assistente IA
+- **Audit**: `/api/audit` - Logs de auditoria
 
 ## 🏗️ Arquitetura
 

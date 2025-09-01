@@ -5,7 +5,9 @@
 This comprehensive manual covers installation, configuration, day-to-day operation, development, testing, and deployment procedures for the KaleConnect project. Includes the latest features: real data system, advanced remittance interface, and enhanced development scripts.
 
 - **Repository**: https://github.com/Jistriane/KaleConnect
-- **Live Application**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
+- **🚀 Live Application**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Vercel Dashboard**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🔧 Backend APIs**: All endpoints active at `/api/*`
 - **Main components**:
   - `kaleconnect-web/` — Web application (Next.js + TypeScript) with integrated backend
   - `contracts/` — Soroban smart contracts (Rust) for KYC, quotes and remittances

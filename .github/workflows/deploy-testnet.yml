@@ -1,0 +1,233 @@
+name: Deploy to Vercel Testnet
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'kaleconnect-web/**'
+      - '.github/workflows/deploy-testnet.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'kaleconnect-web/**'
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  lint-and-type-check:
+    name: Lint e Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: kaleconnect-web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./kaleconnect-web
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./kaleconnect-web
+        run: npm run lint
+
+      - name: Type check
+        working-directory: ./kaleconnect-web
+        run: npx tsc --noEmit
+
+  build-and-test:
+    name: Build e Test
+    runs-on: ubuntu-latest
+    needs: lint-and-type-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: kaleconnect-web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./kaleconnect-web
+        run: npm ci
+
+      - name: Read Contract IDs
+        id: contracts
+        run: |
+          echo "KYC_ID=$(cat contracts/kyc_registry_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "RATES_ID=$(cat contracts/rates_oracle_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "REMITTANCE_ID=$(cat contracts/remittance_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+
+      - name: Build application
+        working-directory: ./kaleconnect-web
+        run: npm run build
+        env:
+          # Frontend/Blockchain
+          NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE: "Test SDF Network ; September 2015"
+          NEXT_PUBLIC_SOROBAN_RPC: "https://soroban-testnet.stellar.org:443"
+          NEXT_PUBLIC_CONTRACT_ID_KYC: ${{ steps.contracts.outputs.KYC_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_RATES: ${{ steps.contracts.outputs.RATES_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_REMITTANCE: ${{ steps.contracts.outputs.REMITTANCE_ID }}
+          NODE_ENV: production
+          # Backend específico
+          AUDIT_LOG_SECRET: "ci_audit_secret_${{ github.run_id }}"
+          APP_CRYPTO_SECRET: "ci_crypto_secret_${{ github.run_id }}_32bytes"
+          ELIZA_USE_CORE: "false"
+          LOG_LEVEL: "info"
+          ENABLE_DEBUG_LOGS: "false"
+          COMPLIANCE_STRICT_MODE: "true"
+          HIGH_VALUE_THRESHOLD_USD: "1000"
+          API_RATE_LIMIT_WINDOW_MS: "60000"
+          API_RATE_LIMIT_MAX_REQUESTS: "20"
+          NEXT_PUBLIC_HORIZON_URL: "https://horizon-testnet.stellar.org"
+          API_TIMEOUT_MS: "30000"
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: kaleconnect-web/.next
+          key: ${{ runner.os }}-build-${{ github.sha }}
+
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: kaleconnect-web/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./kaleconnect-web
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Read Contract IDs
+        id: contracts
+        run: |
+          echo "KYC_ID=$(cat contracts/kyc_registry_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "RATES_ID=$(cat contracts/rates_oracle_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "REMITTANCE_ID=$(cat contracts/remittance_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+
+      - name: Build Project Artifacts
+        working-directory: ./kaleconnect-web
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE: "Test SDF Network ; September 2015"
+          NEXT_PUBLIC_SOROBAN_RPC: "https://soroban-testnet.stellar.org:443"
+          NEXT_PUBLIC_CONTRACT_ID_KYC: ${{ steps.contracts.outputs.KYC_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_RATES: ${{ steps.contracts.outputs.RATES_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_REMITTANCE: ${{ steps.contracts.outputs.REMITTANCE_ID }}
+
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        working-directory: ./kaleconnect-web
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> $GITHUB_OUTPUT
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Preview Deploy Ready!**
+              
+              **URL:** ${{ steps.deploy.outputs.url }}
+              
+              **Configuração:**
+              - 🌐 Rede: Stellar Testnet  
+              - 🔗 RPC: https://soroban-testnet.stellar.org:443
+              - 📄 Contratos atualizados automaticamente
+              
+              Testado com:
+              - ✅ Lint & Type Check
+              - ✅ Build Success
+              `
+            })
+
+  deploy-production:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://kaleconnect-testnet.vercel.app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: kaleconnect-web/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: ./kaleconnect-web
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Read Contract IDs
+        id: contracts
+        run: |
+          echo "KYC_ID=$(cat contracts/kyc_registry_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "RATES_ID=$(cat contracts/rates_oracle_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+          echo "REMITTANCE_ID=$(cat contracts/remittance_id.txt | tr -d '\n\r')" >> $GITHUB_OUTPUT
+
+      - name: Build Project Artifacts
+        working-directory: ./kaleconnect-web
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE: "Test SDF Network ; September 2015"
+          NEXT_PUBLIC_SOROBAN_RPC: "https://soroban-testnet.stellar.org:443"
+          NEXT_PUBLIC_CONTRACT_ID_KYC: ${{ steps.contracts.outputs.KYC_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_RATES: ${{ steps.contracts.outputs.RATES_ID }}
+          NEXT_PUBLIC_CONTRACT_ID_REMITTANCE: ${{ steps.contracts.outputs.REMITTANCE_ID }}
+
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: ./kaleconnect-web
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Create deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment?.id || 0,
+              state: 'success',
+              environment_url: 'https://kaleconnect-testnet.vercel.app',
+              description: 'Deployed to Stellar Testnet'
+            })

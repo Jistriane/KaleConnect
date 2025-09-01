@@ -4,9 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "PORT=3000 next dev --turbopack -p 3000",
-    "build": "next build --turbopack",
+    "dev:testnet": "NODE_ENV=development npm run dev",
+    "build": "next build",
+    "build:testnet": "NODE_ENV=production npm run build",
     "start": "PORT=3000 next start -p 3000",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "type-check": "tsc --noEmit",
+    "deploy:testnet": "./deploy-testnet.sh",
+    "vercel:dev": "vercel dev",
+    "vercel:build": "vercel build",
+    "vercel:deploy": "vercel deploy",
+    "vercel:deploy:prod": "vercel deploy --prod"
   },
   "dependencies": {
     "@elizaos/core": "^1.4.4",
@@ -33,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vercel": "^46.1.1"
   }
 }

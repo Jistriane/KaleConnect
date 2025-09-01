@@ -44,9 +44,32 @@ Acesse: http://localhost:3000
 
 **Para detalhes completos de instalação, configuração, desenvolvimento e deploy, veja os READMEs bilíngues acima.**
 
-## 🚀 Deploy (Frontend + Backend)
+## 🚀 Deploy em Produção (Frontend + Backend)
 
-O frontend (Next.js) e o backend (API Routes em `kaleconnect-web/src/app/api/`) são publicados automaticamente na Vercel a cada push.
+### 🌐 Aplicação Ativa na Vercel Testnet
+
+- **🚀 Aplicação Completa**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Dashboard Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Rede**: Stellar Testnet
+- **⚡ Status**: Ativo e Operacional
+
+### 🎯 Deploy Automático Configurado
+
+O frontend (Next.js) e backend (API Routes) são deployados automaticamente na Vercel:
+- **Push para `main`**: Deploy produção automático
+- **Pull Requests**: Deploy preview para testes
+- **Validação contínua**: Lint + build + testes
+
+### 🔧 APIs Backend Disponíveis
+
+- **Health Check**: `/api/health` - Status detalhado do sistema
+- **Monitoramento**: `/api/monitoring` - Métricas Prometheus
+- **WebAuthn**: `/api/auth/passkey/*` - Autenticação sem senha
+- **KYC Registry**: `/api/kyc/*` - Verificação de identidade
+- **Rates Oracle**: `/api/rates` - Cotações em tempo real
+- **Remittances**: `/api/remit/*` - Transferências internacionais
+- **Elisa Chat**: `/api/elisa/chat` - Assistente IA
+- **Audit Logs**: `/api/audit` - Logs de auditoria
 
 - **Projeto Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
 - **Produção** (com proteção habilitada por padrão):

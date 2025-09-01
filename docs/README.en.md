@@ -418,20 +418,34 @@ soroban contract invoke \
 
 ## 🚀 Deploy & Production
 
-### 🌐 Vercel (Recommended) - Automatic Deploy
+### 🌐 Live Application on Vercel Testnet
 
-The application is configured for automatic deploy on Vercel:
+#### 🔗 Complete Application URLs
+- **🚀 Main Application**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Vercel Dashboard**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Blockchain Network**: Stellar Testnet
+- **⚡ Status**: Active and Operational 24/7
 
-#### 🔗 Production URLs
-- **Vercel Project**: https://vercel.com/jistrianes-projects/kaleconnect-web
-- **Production**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
-- **Preview**: https://kaleconnect-b7nr4d6il-jistrianes-projects.vercel.app (public)
+#### 🔧 Active Backend APIs
 
-#### 🔄 Deploy Process
-1. **Push to `main`** → Automatic deploy
-2. **Environment variables** already configured on Vercel
-3. **Build and tests** run automatically
-4. **Instant deployment** with zero downtime
+All APIs are functional and available:
+
+- **Health Check**: `/api/health` - Detailed system status and metrics
+- **Monitoring**: `/api/monitoring` - Prometheus metrics for observability
+- **WebAuthn**: `/api/auth/passkey/*` - Passwordless authentication via biometrics
+- **KYC Registry**: `/api/kyc/*` - Identity verification and compliance
+- **Rates Oracle**: `/api/rates` - Real-time exchange rates
+- **Remittances**: `/api/remit/*` - International transfers
+- **Elisa Chat**: `/api/elisa/chat` - Conversational AI assistant
+- **Audit Logs**: `/api/audit` - Cryptographic audit logs
+
+#### 🎯 Automated Deploy Configured
+1. **Push to `main`** → Automatic production deployment
+2. **Pull Requests** → Preview deployment for testing
+3. **Continuous validation** → Lint + build + automated tests
+4. **Environment variables** → Auto-configured for Stellar Testnet
+5. **Monitoring** → Real-time logs and metrics
+6. **Rate Limiting** → 20 req/min per IP with informative headers
 
 #### ⚙️ Vercel Configuration
 For new Vercel deploy:
@@ -1038,8 +1052,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](../LICENS
 
 ### 🔗 Project Links
 - **Repository**: https://github.com/Jistriane/KaleConnect
-- **Live Application**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
-- **Documentation**: https://github.com/Jistriane/KaleConnect/tree/main/docs
+- **🚀 Live Application**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Vercel Dashboard**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **📚 Documentation**: https://github.com/Jistriane/KaleConnect/tree/main/docs
+- **🔧 API Health**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app/api/health
+- **📊 Monitoring**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app/api/monitoring
 
 ### 💬 Social Networks
 - **GitHub**: [@Jistriane](https://github.com/Jistriane)

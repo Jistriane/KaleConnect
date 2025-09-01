@@ -44,16 +44,32 @@ Access: http://localhost:3000
 
 **For complete installation, configuration, development and deployment details, see the bilingual READMEs above.**
 
-## 🚀 Deploy (Frontend + Backend)
+## 🚀 Production Deploy (Frontend + Backend)
 
-The frontend (Next.js) and the backend (API Routes in `kaleconnect-web/src/app/api/`) are automatically deployed to Vercel on each push.
+### 🌐 Live Application on Vercel Testnet
 
-- **Vercel Project**: https://vercel.com/jistrianes-projects/kaleconnect-web
-- **Production** (Protection enabled by default):
-  - App: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
-  - To make it public: Vercel → Project → Settings → Protection → disable for Production
-- **Preview** (public):
-  - App: https://kaleconnect-b7nr4d6il-jistrianes-projects.vercel.app
+- **🚀 Complete Application**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Vercel Dashboard**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Network**: Stellar Testnet
+- **⚡ Status**: Active and Operational
+
+### 🎯 Automated Deploy Configured
+
+Frontend (Next.js) and backend (API Routes) are automatically deployed to Vercel:
+- **Push to `main`**: Automatic production deploy
+- **Pull Requests**: Preview deploy for testing
+- **Continuous validation**: Lint + build + tests
+
+### 🔧 Available Backend APIs
+
+- **Health Check**: `/api/health` - Detailed system status
+- **Monitoring**: `/api/monitoring` - Prometheus metrics
+- **WebAuthn**: `/api/auth/passkey/*` - Passwordless authentication
+- **KYC Registry**: `/api/kyc/*` - Identity verification
+- **Rates Oracle**: `/api/rates` - Real-time exchange rates
+- **Remittances**: `/api/remit/*` - International transfers
+- **Elisa Chat**: `/api/elisa/chat` - AI assistant
+- **Audit Logs**: `/api/audit` - Audit trail
 
 ### 🔥 Implemented Features
 

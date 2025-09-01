@@ -418,20 +418,34 @@ soroban contract invoke \
 
 ## 🚀 Deploy & Produção
 
-### 🌐 Vercel (Recomendado) - Deploy Automático
+### 🌐 Aplicação Ativa na Vercel Testnet
 
-A aplicação está configurada para deploy automático na Vercel:
+#### 🔗 URLs da Aplicação Completa
+- **🚀 Aplicação Principal**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Dashboard Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **🌍 Rede Blockchain**: Stellar Testnet
+- **⚡ Status**: Ativo e Operacional 24/7
 
-#### 🔗 URLs de Produção
-- **Projeto Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
-- **Produção**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
-- **Preview**: https://kaleconnect-b7nr4d6il-jistrianes-projects.vercel.app (público)
+#### 🔧 APIs Backend Ativas
 
-#### 🔄 Processo de Deploy
-1. **Push para `main`** → Deploy automático
-2. **Variáveis de ambiente** já configuradas na Vercel
-3. **Build e testes** executados automaticamente
-4. **Deploy instantâneo** sem downtime
+Todas as APIs estão funcionais e disponíveis:
+
+- **Health Check**: `/api/health` - Status detalhado do sistema e métricas
+- **Monitoramento**: `/api/monitoring` - Métricas Prometheus para observabilidade
+- **WebAuthn**: `/api/auth/passkey/*` - Autenticação sem senha via biometria
+- **KYC Registry**: `/api/kyc/*` - Verificação de identidade e compliance
+- **Rates Oracle**: `/api/rates` - Cotações de câmbio em tempo real
+- **Remittances**: `/api/remit/*` - Transferências internacionais
+- **Elisa Chat**: `/api/elisa/chat` - Assistente de IA conversacional
+- **Audit Logs**: `/api/audit` - Logs de auditoria criptográficos
+
+#### 🎯 Deploy Automático Configurado
+1. **Push para `main`** → Deploy produção automático
+2. **Pull Requests** → Deploy preview para testes
+3. **Validação contínua** → Lint + build + testes automatizados
+4. **Variáveis de ambiente** → Auto-configuradas para Stellar Testnet
+5. **Monitoramento** → Logs e métricas em tempo real
+6. **Rate Limiting** → 20 req/min por IP com headers informativos
 
 #### ⚙️ Configuração Vercel
 Para novo deploy Vercel:
@@ -1038,8 +1052,11 @@ Este projeto está licenciado sob a **Licença MIT** - veja o arquivo [LICENSE](
 
 ### 🔗 Links do Projeto
 - **Repositório**: https://github.com/Jistriane/KaleConnect
-- **Aplicação Live**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
-- **Documentação**: https://github.com/Jistriane/KaleConnect/tree/main/docs
+- **🚀 Aplicação Live**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app
+- **🔍 Dashboard Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
+- **📚 Documentação**: https://github.com/Jistriane/KaleConnect/tree/main/docs
+- **🔧 API Health**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app/api/health
+- **📊 Monitoramento**: https://kaleconnect-qr6bjqgaa-jistrianes-projects.vercel.app/api/monitoring
 
 ### 💬 Redes Sociais
 - **GitHub**: [@Jistriane](https://github.com/Jistriane)
