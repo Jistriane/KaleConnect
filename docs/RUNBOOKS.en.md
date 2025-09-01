@@ -1,6 +1,8 @@
-# 📚 Runbooks — KaleConnect (EN)
+# 📚 Operational Runbooks — KaleConnect (EN)
 
-Operational guides: deploy, rollback, incidents, monitoring.
+**Operational procedures for deployment, monitoring, incidents, and maintenance.**
+
+Practical guides for production operations: automated deployment, emergency rollback, incident response, system monitoring, and maintenance procedures. Includes the new real data features and advanced interface.
 
 ## 1) Web Deploy (Vercel)
 - Pre: environment variables configured (equivalent to `.env.local`).

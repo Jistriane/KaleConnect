@@ -1,6 +1,8 @@
-# 🦀 Guia Soroban — KaleConnect (PT-BR)
+# 🦀 Guia Completo Soroban — KaleConnect (PT-BR)
 
-Passo a passo para compilar, testar e implantar os contratos Soroban.
+**Guia completo para desenvolvimento, compilação, teste e deploy dos smart contracts Soroban.**
+
+Passo a passo detalhado para trabalhar com os contratos inteligentes do KaleConnect: Remittance, KYC Registry e Rates Oracle. Inclui configuração do ambiente, desenvolvimento local e deploy em produção.
 
 ## 1) Setup
 ```bash

@@ -1,6 +1,8 @@
-# 🧭 Arquitetura — KaleConnect (PT-BR)
+# 🧭 Arquitetura Técnica — KaleConnect (PT-BR)
 
-Este documento descreve a arquitetura de alto nível do KaleConnect, seus componentes principais, fluxos de dados e integrações externas.
+**Visão técnica completa da arquitetura do sistema KaleConnect.**
+
+Este documento descreve a arquitetura de alto nível do KaleConnect, seus componentes principais, fluxos de dados, integrações externas e as implementações mais recentes do sistema de dados reais e interface avançada.
 
 ## Visão Geral
 

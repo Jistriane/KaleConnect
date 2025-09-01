@@ -1,6 +1,8 @@
-# 🧭 Architecture — KaleConnect (EN)
+# 🧭 Technical Architecture — KaleConnect (EN)
 
-This document outlines KaleConnect's high-level architecture, core components, data flows, and external integrations.
+**Complete technical overview of KaleConnect system architecture.**
+
+This document outlines KaleConnect's high-level architecture, core components, data flows, external integrations, and the latest implementations of the real data system and advanced interface.
 
 ## Overview
 

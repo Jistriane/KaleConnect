@@ -1,12 +1,23 @@
-# 🌿 KaleConnect — User & Operations Manual (EN)
+# 🌿 KaleConnect — Complete Operations Manual (EN)
 
-This manual covers installation, configuration, day-to-day operation, development, testing, and deployment procedures for the KaleConnect project. Intended for developers, operators, and technical reviewers.
+**Complete operational manual for developers, operators, and technical reviewers.**
 
-- Repository: https://github.com/Jistriane/KaleConnect
-- Main components:
-  - `kaleconnect-web/` — Web application (Next.js + TypeScript)
-  - `contracts/` — Soroban smart contracts (Rust)
-  - Scripts: `init.sh`, `dev.sh`, `deploy.sh`, `Makefile`
+This comprehensive manual covers installation, configuration, day-to-day operation, development, testing, and deployment procedures for the KaleConnect project. Includes the latest features: real data system, advanced remittance interface, and enhanced development scripts.
+
+- **Repository**: https://github.com/Jistriane/KaleConnect
+- **Live Application**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
+- **Main components**:
+  - `kaleconnect-web/` — Web application (Next.js + TypeScript) with integrated backend
+  - `contracts/` — Soroban smart contracts (Rust) for KYC, quotes and remittances
+  - `docs/` — Complete bilingual documentation
+  - Scripts: `init.sh`, `dev.sh`, `deploy.sh`, `Makefile` for automation
+
+## 🆕 New Here?
+
+- 🚀 **Quick start**: Run `./init.sh` followed by `make dev`
+- 📚 **Complete documentation**: [`docs/README.en.md`](README.en.md)
+- 🔥 **Recent features**: [Real data implementation](../REAL_DATA_IMPLEMENTATION.md)
+- 🛠️ **Scripts**: [Complete scripts guide](../SCRIPTS.md)
 
 ---
 

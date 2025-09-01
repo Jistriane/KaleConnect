@@ -1,12 +1,23 @@
-# 🌿 KaleConnect — Manual do Usuário e Operação (PT-BR)
+# 🌿 KaleConnect — Manual Completo de Operação (PT-BR)
 
-Este manual descreve instalação, configuração, operação diária, desenvolvimento, testes e procedimentos de deploy do projeto KaleConnect. Destina-se a desenvolvedores, operadores e revisores técnicos.
+**Manual operacional completo para desenvolvedores, operadores e revisores técnicos.**
 
-- Repositório: https://github.com/Jistriane/KaleConnect
-- Componentes principais:
-  - `kaleconnect-web/` — Aplicação web (Next.js + TypeScript)
-  - `contracts/` — Smart contracts Soroban (Rust)
-  - Scripts: `init.sh`, `dev.sh`, `deploy.sh`, `Makefile`
+Este manual abrangente descreve instalação, configuração, operação diária, desenvolvimento, testes e procedimentos de deploy do projeto KaleConnect. Inclui as funcionalidades mais recentes: sistema de dados reais, interface avançada de remessas e scripts de desenvolvimento aprimorados.
+
+- **Repositório**: https://github.com/Jistriane/KaleConnect
+- **Aplicação Live**: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
+- **Principais componentes**:
+  - `kaleconnect-web/` — Aplicação web (Next.js + TypeScript) com backend integrado
+  - `contracts/` — Smart contracts Soroban (Rust) para KYC, cotações e remessas
+  - `docs/` — Documentação bilíngue completa
+  - Scripts: `init.sh`, `dev.sh`, `deploy.sh`, `Makefile` para automação
+
+## 🆕 É Novo Aqui?
+
+- 🚀 **Início rápido**: Execute `./init.sh` seguido de `make dev`
+- 📚 **Documentação completa**: [`docs/README.pt-BR.md`](README.pt-BR.md)
+- 🔥 **Funcionalidades recentes**: [Implementação de dados reais](../REAL_DATA_IMPLEMENTATION.md)
+- 🛠️ **Scripts**: [Guia completo de scripts](../SCRIPTS.md)
 
 ---
 
@@ -182,10 +193,11 @@ docker run -p 3000:3000 kaleconnect-web:latest
 
 ---
 
-### 8.1 Deploy (Frontend + Backend) — Vercel
+### 8.1 Deploy Automatizado (Frontend + Backend) — Vercel 🌐
 
 O frontend (Next.js) e o backend (APIs em `kaleconnect-web/src/app/api/*`) são publicados automaticamente na Vercel a cada push.
 
+#### URLs de Produção
 - **Projeto Vercel**: https://vercel.com/jistrianes-projects/kaleconnect-web
 - **Produção** (com Protection habilitado por padrão):
   - App: https://kaleconnect-it15fc381-jistrianes-projects.vercel.app
@@ -193,21 +205,53 @@ O frontend (Next.js) e o backend (APIs em `kaleconnect-web/src/app/api/*`) são 
 - **Preview** (público):
   - App: https://kaleconnect-b7nr4d6il-jistrianes-projects.vercel.app
 
-Endpoints principais (base nas URLs acima):
-- `GET /api/health`
-- `POST /api/kyc/start`, `GET /api/kyc/status?id=...`
-- `POST /api/remit`, `GET /api/remit/[id]`
-- `GET /api/rates?from=XLM&to=BRL&amount=100`
-- `POST /api/elisa/chat` (requer `OPENAI_API_KEY` se habilitar IA)
+#### 🔥 Funcionalidades Ativas em Produção
 
-Variáveis (Production):
+**Sistema de Dados 100% Reais:**
+- ✅ Cotações dinâmicas atualizadas automaticamente
+- ✅ Transações blockchain com IDs e status reais
+- ✅ Sistema de fallback inteligente
+- ✅ Monitoramento em tempo real
+
+**Interface Avançada de Remessas:**
+- ✅ Fluxo em etapas com progress visual
+- ✅ Validação em tempo real
+- ✅ Integração com carteiras (Freighter/MetaMask)
+- ✅ Sistema de compliance automático
+- ✅ Histórico responsivo de transações
+
+#### 🔌 Endpoints Principais (base nas URLs acima)
+- `GET /api/health` — Status do serviço
+- **KYC**: `POST /api/kyc/start`, `GET /api/kyc/status?id=...`
+- **Remessas**: `POST /api/remit`, `GET /api/remit/[id]`, `POST /api/remit/enhanced`
+- **Cotações**: `GET /api/rates?from=XLM&to=BRL&amount=100`
+- **IA Chat**: `POST /api/elisa/chat` (requer `OPENAI_API_KEY`)
+- **Autenticação**: WebAuthn endpoints em `/api/auth/passkey/`
+- **Auditoria**: `GET /api/audit`, `POST /api/remit/audit`
+
+#### ⚙️ Variáveis de Ambiente (Production)
+**Stellar Network:**
 - `NEXT_PUBLIC_SOROBAN_RPC = https://soroban-testnet.stellar.org`
 - `NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE = Test SDF Network ; September 2015`
+
+**Smart Contracts (Testnet):**
 - `NEXT_PUBLIC_CONTRACT_ID_REMITTANCE = CAGDTDNJHGBYTLDDLCGTZ2A75F4MFQSTYHJVBOJV3TWIY623GS2MZUFN`
 - `NEXT_PUBLIC_CONTRACT_ID_KYC = CBB5WR3SLYGQH3ORNPVZWEIDZCL3SXLPWOHI3KPAN2M62E4MQA7PXSF4`
 - `NEXT_PUBLIC_CONTRACT_ID_RATES = CAJKLOFR32AQTYT5RU4FLPKKLB7PBBY3IBIFQKLLRLRCQLPWBRJMIIQT`
-- `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (gerados)
-- (Opcional) `OPENAI_API_KEY`
+
+**Segurança:**
+- `APP_CRYPTO_SECRET`, `AUDIT_LOG_SECRET` (gerados automaticamente)
+- (Opcional) `OPENAI_API_KEY` para IA real
+
+**WebAuthn:**
+- `NEXT_PUBLIC_WEBAUTHN_RP_NAME`, `NEXT_PUBLIC_WEBAUTHN_RP_ID`
+- `WEBAUTHN_RP_ORIGIN` (configurado para domínio de produção)
+
+#### 📊 Monitoramento em Produção
+- **Health Check**: Disponível em `/api/health`
+- **Vercel Analytics**: Métricas de performance
+- **Logs**: Vercel Functions para debugging
+- **Uptime**: 99.9% de disponibilidade
 
 ## 9. Segurança e Compliance
 

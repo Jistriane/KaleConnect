@@ -1,6 +1,8 @@
-# 🦀 Soroban Guide — KaleConnect (EN)
+# 🦀 Complete Soroban Guide — KaleConnect (EN)
 
-Step-by-step to build, test, and deploy Soroban contracts.
+**Complete guide for developing, building, testing, and deploying Soroban smart contracts.**
+
+Detailed step-by-step guide for working with KaleConnect's smart contracts: Remittance, KYC Registry, and Rates Oracle. Includes environment setup, local development, and production deployment.
 
 ## 1) Setup
 ```bash
